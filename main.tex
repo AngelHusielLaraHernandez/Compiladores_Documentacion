@@ -25,6 +25,11 @@
 \usepackage{colortbl} % <-- Added for \rowcolor
 \usepackage{tcolorbox}
 \usepackage{csquotes} % recomendado para babel/biblatex
+\usepackage{amsmath}
+\usetikzlibrary{automata, positioning}
+
+%--Quitar las sangria del documento
+\setlength{\parindent}{0pt}
 
 % --- BIBLIOGRAFÍA ---
 \usepackage[backend=biber, style=ieee, sortcites, url=true]{biblatex}
@@ -50,6 +55,14 @@
 
 % --- LISTAS ---
 \usepackage{enumitem}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    breaklines=true,
+    captionpos=b
+}
 
 % --- ENCABEZADOS Y PIES DE PÁGINA ---
 \usepackage{fancyhdr}
@@ -172,6 +185,134 @@ Cabe recalcar que se consideraron los casos especiales de los literales de caden
 Al final el programa después de procesar la entrada deberá imprimir una tabla con el análisis léxico de la entrada y el conteo de los grupos de tokens.
 
 \subsection{Gramatica}
+
+\subsubsection*{1. Reglas de producción }
+\begin{center}
+\begin{align*}
+    \text{Stmt} &\rightarrow \text{Stmt} \ \text{StmtList} \mid \varepsilon \\
+    \text{StmtList} &\rightarrow \text{DeclNum} \mid \text{DeclChar} \mid \text{AssignStmt} \mid \text{IfStmt} \mid \text{WhileStmt} \\
+    &\mid \text{ForStmt} \mid \text{PrintStmt} \mid \text{ScanStmt} \mid \text{UnaryStmt}
+\end{align*}
+\end{center}
+
+Donde:
+
+\begin{itemize}
+    \item \textbf{Stmt} es el Símbolo Inicial para generar instrucciones.
+    \item \textbf{StmtList} representa las instrucciones específicas que se pueden producir.
+    \item \textbf{DeclNum} y \textbf{DeclChar} son las declaraciones de números y caracteres.
+    \item \textbf{AssignStmt} es para la asignación de variables.
+    \item \textbf{IfStmt, WhileStmt, ForStmt} son las estructuras de control de flujo.
+    \item \textbf{PrintStmt, ScanStmt} son las funciones de entrada y salida de datos.
+    \item \textbf{UnaryStmt} es para las sentencias unarias (pre/post incrementos).
+\end{itemize}
+
+\subsubsection*{2. Reglas de produccion: }
+
+\begin{align*}
+    \text{DeclNum} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \text{;} \\
+    \text{AssignOpNum} &\rightarrow \text{MathExpr} \mid \varepsilon \\
+    \text{DeclChar} &\rightarrow \text{TypeChar} \ \text{ID} \ \text{AssignOpChar} \text{;} \\
+    \text{AssignOpChar} &\rightarrow \text{VALUE\_CHAR} \mid \varepsilon \\
+    \text{AssignStmt} &\rightarrow \text{ID} \ \text{AssignExprOp} \ \text{MathExpr} \mid \text{ID} \ \text{VALUE\_CHAR} \text{;} \\
+    \text{TypeNum} &\rightarrow \text{int} \mid \text{float} \mid \text{double} \\
+    \text{TypeChar} &\rightarrow \text{char}
+\end{align*}
+
+\newpage
+
+Donde:
+
+\begin{itemize}
+    \item DeclNum : Es la PR para declarar un número o declarar un número e inicializarlo.
+    \item DeclChar : PR para declarar un carácter o carácter un número e inicializarlo.
+    \item AssignStmt : Es la PR para asignar el valor a un dato ya declarado anteriormente.
+    \item TypeNum : Los tipos de datos numérico que acepta.
+    \item TypeChar : Tipo de dato de carácter que acepta.
+\end{itemize}
+
+
+\textbf{3. Aplicando factorización por la izquierda: }
+
+La declaración de variables $DeclNum \rightarrow TypeNum \ ID \ ; \mid TypeNum \ ID \ = \ MathExpr \ ;$ tiene el factor común $TypeNum \ ID$, por lo que podemos expresarla como:
+
+\begin{align*}
+    \text{DeclNum} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \text{;} \\
+    \text{AssignOpNum} &\rightarrow \text{MathExpr} \mid \varepsilon
+\end{align*}
+
+También la expresión para operaciones continuas 
+\begin{small}
+\[
+\text{MathExpr} \rightarrow \text{MathExpr} \ \text{MathOp} \ \text{MathOperand} \mid \text{MathOperand}
+\]
+\end{small}
+presentaba recursividad por la izquierda, por lo que fue factorizada (recursividad por la derecha) de la siguiente manera:
+
+\begin{small}
+\begin{align*}
+    \text{MathExpr} &\rightarrow \text{MathOperand} \\
+    &\mid \text{MathOperand} \ \text{MathOp} \ \text{MathExpr}
+\end{align*}
+\end{small}
+
+Este procedimiento ayudará a evitar el no determinismo, también con la ayuda de la recursividad por la derecha ya realizada, donde tenemos elementos no terminales en el lado derecho, por lo que esto puede ayudar con las cadenas repetitivas y recursivas que podemos hacer al anidar operaciones o llamadas lógicas.
+
+Finalmente la gramática está definida por las expresiones:
+\begin{small}
+\begin{align*}
+    \text{Stmt} &\rightarrow \text{Stmt} \ \text{StmtList} \mid \varepsilon \\
+    \text{StmtList} &\rightarrow \text{DeclNum} \mid \text{DeclChar} \mid \text{AssignStmt} \mid \text{IfStmt} \mid \text{WhileStmt} \mid \\
+    &\quad \text{ForStmt} \mid \text{PrintStmt} \mid \text{ScanStmt} \mid \text{UnaryStmt} \\
+    \text{DeclNum} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \text{;} \\
+    \text{AssignOpNum} &\rightarrow \text{MathExpr} \mid \varepsilon \\
+    \text{DeclChar} &\rightarrow \text{TypeChar} \ \text{ID} \ \text{AssignOpChar} \text{;} \\
+    \text{AssignOpChar} &\rightarrow \text{VALUE\_CHAR} \mid \varepsilon \\
+    \text{AssignStmt} &\rightarrow \text{ID} \ \text{AssignExprOp} \ \text{MathExpr} \mid \text{ID} \ \text{VALUE\_CHAR} \text{;} \\
+    \text{TypeNum} &\rightarrow \text{int} \mid \text{float} \mid \text{double} \\
+    \text{TypeChar} &\rightarrow \text{char} \\
+    \text{IfStmt} &\rightarrow \text{if} \ (\text{Cond}) \ \{ \text{StmtList} \} \\
+    \text{WhileStmt} &\rightarrow \text{while} \ (\text{Cond}) \ \{ \text{StmtList} \} \\
+    \text{ForStmt} &\rightarrow \text{for} \ (\text{ForInit} \text{;} \ \text{ForCond} \text{;} \ \text{ForStep}) \ \{ \text{StmtList} \} \\
+    \text{ForInit} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \mid \text{ID} \ \text{AssignExprOp} \ \text{MathExpr} \mid \varepsilon \\
+    \text{ForCond} &\rightarrow \text{Cond} \mid \varepsilon \\
+    \text{ForStep} &\rightarrow \text{IncDecOp} \ \text{ID} \mid \text{ID} \ \text{IncDecOp} \mid \\
+    &\quad \text{ID} \ \text{AssignExprOp} \ \text{MathExpr} \mid \varepsilon \\
+    \text{PrintStmt} &\rightarrow \text{printf} ( \text{PrintArgs} ) \text{;} \\
+    \text{PrintArgs} &\rightarrow \text{TEXT\_STRING} \mid \text{TEXT\_STRING} , \text{IdList} \text{;} \\
+    \text{ScanStmt} &\rightarrow \text{scanf} ( \text{TEXT\_STRING} , \&\text{ID} ) \text{;} \\
+    \text{IdList} &\rightarrow \text{ID} \mid \text{ID} , \text{IdList} \\
+    \text{UnaryStmt} &\rightarrow \text{IncDecOp} \ \text{ID} \text{;} \mid \text{ID} \ \text{IncDecOp} \text{;} \\
+    \text{IncDecOp} &\rightarrow \text{++} \mid \text{--} \\
+    \text{AssignExprOp} &\rightarrow \text{=} \mid \text{+=} \mid \text{-=} \mid \text{/=} \\
+    \text{MathExpr} &\rightarrow \text{MathOperand} \mid \text{MathOperand} \ \text{MathOp} \ \text{MathExpr} \\
+    \text{MathOperand} &\rightarrow \text{ID} \mid \text{VALUE\_NUM} \\
+    \text{MathOp} &\rightarrow + \mid - \mid * \mid / \mid \% \\
+    \text{Cond} &\rightarrow \text{CondAnd} \ \text{CondOrPrime} \\
+    \text{CondOrPrime} &\rightarrow || \ \text{CondAnd} \ \text{CondOrPrime} \mid \varepsilon \\
+    \text{CondAnd} &\rightarrow \text{CondRel} \ \text{CondAndPrime} \\
+    \text{CondAndPrime} &\rightarrow \&\& \ \text{CondRel} \ \text{CondAndPrime} \mid \varepsilon \\
+    \text{CondRel} &\rightarrow \text{MathExpr} \ \text{RelOp} \ \text{MathExpr} \mid \text{CondUnary} \\
+    \text{CondUnary} &\rightarrow \text{!} \ \text{CondUnary} \mid (\text{Cond}) \mid \text{IdVal} \\
+    \text{IdVal} &\rightarrow \text{ID} \mid \text{VALUE\_NUM} \mid \text{VALUE\_CHAR} \\
+    \text{RelOp} &\rightarrow == \mid != \mid < \mid > \mid <= \mid >=
+\end{align*}
+\end{small}
+
+\newpage
+
+\textbf{4. Condiciones Lógicas (Precedencia por Capas):} 
+
+Para respetar rigurosamente la jerarquía de las operaciones lógicas, las reglas de producción para las condiciones (\texttt{Cond}) se diseñaron utilizando un enfoque de niveles de prioridad estratificados:
+
+\begin{itemize}
+    \item \textbf{Nivel de Menor Prioridad (OR):} El análisis inicia en \texttt{Cond}, obligando a evaluar primero las capas inferiores antes de procesar el operador \texttt{||}.
+    \item \textbf{Nivel Intermedio (AND):} A través de \texttt{CondAnd}, los operadores agrupan sus operandos lógicos antes de que la capa superior (OR) pueda procesarlos.
+    \item \textbf{Nivel de Comparaciones (Relacional):} La regla \texttt{CondRel} evalúa las expresiones matemáticas separadas por operadores relacionales ($>$, $<$, $==$).
+    \item \textbf{Nivel de Máxima Prioridad (NOT y Paréntesis):} La regla \texttt{CondUnary} asegura que las negaciones lógicas y las expresiones anidadas entre paréntesis se resuelvan primero.
+\end{itemize}
+
+
 
 
 \subsection{Entrada/Salida y Ejecución}
