@@ -1,0 +1,59 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{10.5555/576122}{book}{}{}
+      \name{author}{2}{}{%
+        {{hash=cef3a18f3097ba31cc4cf18c95bfdfbc}{%
+           family={Kernighan},
+           familyi={K\bibinitperiod},
+           given={Brian\bibnamedelima W.},
+           giveni={B\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=12fa210c982feca0e65287dfda751aca}{%
+           family={Ritchie},
+           familyi={R\bibinitperiod},
+           given={Dennis\bibnamedelima M.},
+           giveni={D\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Prentice Hall Professional Technical Reference}%
+      }
+      \strng{namehash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{fullhash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{fullhashraw}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{bibnamehash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{authorbibnamehash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{authornamehash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{authorfullhash}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \strng{authorfullhashraw}{3d646d17379d31803e7e0fbf4ee93b5c}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{From the Publisher: This second editon describes C as defined by the ANSI standard. This book is meant to help the reader learn how to program in C. The book assumes some familiarity with basic programming concepts like variables, assignment statements, loops, and functions. A novice programmer should be able to read along and pick up the language. FEATURES: All examples have been tested, which is in machine-readable form. It discusses various aspects of C in more detail, although the emphasis is on examples of complete programs, rather than isolated fragments. It deals with basic data types, operators and expressions. Covers functions and program structure, external variables, scope rules, multiple source files, and also touches on the preprocessor. It also describes an interface between C programs and the UNIX operating system, concentrating on input/output, the file system, and storage allocation. It also provides a language reference manual. The official statement of the syntax and semantics of C is the ANSI standard.}
+      \field{edition}{2nd}
+      \field{isbn}{0131103709}
+      \field{title}{The C Programming Language}
+      \field{year}{1988}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

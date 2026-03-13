@@ -1,0 +1,130 @@
+\documentclass[letterpaper,12pt,oneside]{article}
+\usepackage[top=1in, left=1.25in, right=1.25in, bottom=1in]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot,es-tabla]{babel}
+\usepackage{caption, subcaption} %figuras
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{imakeidx}
+\usepackage{biblatex}
+\addbibresource{bib/protocolo.bib}
+
+\graphicspath{{./figs/}}
+\usepackage{setspace}
+%\usepackage[round]{natbib}
+
+\begin{document}
+%\frontmatter
+\begin{titlepage}
+		\setlength{\parindent}{0pt} \setlength{\parskip}{0pt}
+	
+		\begin{center}
+			\vfill 
+			
+			\begin{minipage}{\textwidth}
+				
+				\newcolumntype{V}{>{\centering\arraybackslash} m{.17\textwidth} }
+				\newcolumntype{C}{>{\centering\arraybackslash} m{.56\textwidth} }
+				
+				\begin{center}
+					\includegraphics[width=4.5cm]{UNAM_LOGO2.png}	
+				\end{center} 	
+				\begin{center}
+					\Huge\textbf{Universidad Nacional Autónoma de México}
+				\end{center} 
+				
+			\end{minipage}
+				
+			\vfill
+			
+			\begin{minipage}{0.7\textwidth}
+				\begin{center}
+					\large Ingeniería en ...
+				\end{center}
+			\end{minipage}
+			% 
+			\begin{center}
+				%\medskip \rule{.9\textwidth}{2pt}
+				\vfill
+				\large Nombre de Asignatura
+				%{\Large \bfseries  \title   }
+				
+				%\medskip \rule{.9\textwidth}{2pt}
+			\end{center}
+			
+			\begin{center}
+				\vspace*{1cm}
+				{\huge FORMATO DE REPORTE}\\
+				\vspace*{1cm}
+				
+				%PRESENTA:\\ \medskip
+				\begin{center}
+					ALUMNO: \\
+					\large 309075318
+				\end{center}
+				
+				\bigskip
+				
+				Grupo: \\
+				\#\\
+				%Coadvisors
+				Semestre: \\
+                2024-II
+			\end{center}
+			
+			\vfill
+			
+			\begin{center}
+				{México,CDMX. Febrero 2024}\\
+			\end{center}
+			\cleardoublepage
+		\end{center}
+	\end{titlepage}
+ 
+\tableofcontents
+\clearpage
+    
+%\mainmatter
+
+\section{Introducción} %
+
+Este apartado debe abordar los siguientes puntos:
+
+\begin{itemize}
+    \item \textbf{Planteamiento del problema.} Se hace una descripción del problema a resolver.
+    \item \textbf{Motivación.} Se describe porqué es necesario dar solución al problema.
+    \item \textbf{Objetivos.} Lo que se se espera obtener de darle solución al problema.
+\end{itemize}
+
+\section{Marco Teórico}
+
+Son los conceptos aplicados, principalmente los vistos en clase, con los que se va a dar solución al problema, explicados de forma concreta, ya sea con su interpretación personal o bien con referencias bibliográficas sólidas.~\cite{10.5555/576122}
+
+\section{Desarrollo}
+
+Es la descripción de la implementación realizada en el lenguaje de programación, así como las pruebas realizadas para obtener los resultados. Es importante resaltar lo siguiente:
+
+\begin{itemize}
+    \item No se debe mostrar código, solo describir funciones o la aplicación de los conceptos teóricos.
+    \item Las pruebas es describir las entradas ingresadas y las salidas obtenidas.
+\end{itemize}
+
+\section{Resultados}
+
+Mediante capturas de pantalla y una breve descripción seguida de la captura se presentan los resultados finales de su aplicación.
+
+\section{Conclusiones}
+
+Se presenta un análisis de los resultados obtenidos, donde se destaca la importancia de la aplicación de los conceptos teóricos para resolver el problema. Es importante resaltar lo siguiente:
+
+\begin{itemize}
+    \item No es describir si les gustó la actividad o no.
+    \item No es decir que se obtuvo de la práctica.
+    \item No es describir lo que fue difícil.
+\end{itemize}
+
+\printbibliography
+\end{document}
