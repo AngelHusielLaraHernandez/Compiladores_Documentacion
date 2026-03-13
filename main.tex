@@ -80,13 +80,61 @@ Este apartado debe abordar los siguientes puntos:
     \item \textbf{Objetivos.} Lo que se se espera obtener de darle solución al problema.
 \end{itemize}
 
-\section{Marco Teórico}
+\section{Theorical Framework}
+Firstly, the traduction of a high level programming languaje into a low level one is a process structured in multiple phases.
 
-Son los conceptos aplicados, principalmente los vistos en clase, con los que se va a dar solución al problema, explicados de forma concreta, ya sea con su interpretación personal o bien con referencias bibliográficas sólidas.
+In this proyect we will aboard the inicial stages of the front-end of the compiler: the lexical analysis and the syntatic analysis. 
+This phases work together in order to validate that the source code given by the user is well formed before proceding with the semantic evaluation or the code generation. In this case, the validation procees its aplied to a code that is written in C that uyses a specific set of instructions
+
+\subsection{Lexical Analysis (Scanner / Lexer)}
+The lexical analysis represents the first stage of the languaje processing. Its fundamental responsability is to redd the code character by character and group them in secuences with logical meaning,
+known as lexemes.
+
+Starting from this lexemes, the analyzer, generatees a secuence of tokens (as identifiers, key words, constants, special characters, operators, punctuation, literals).
+In the proyect, the lexical analyzer identifies specific sets as:
+\begin{itemize}
+    \item \textbf{ID:} Identifiers used to give name to the variables
+    \item \textbf{VALUE\_NUM: } Literals that represent any number whole and decimal
+    \item \textbf{VALUE\_CHAR: } Literals that represent a unique character enclosed between simple commas
+    \item \textbf{TEXT\_STRING: } Text strings enclosed in double quotes, mostly used as format specifiers
+\end{itemize}
+
+\subsection{Syntactic analysis (Parsing) and CFG (CONTEXT-FREE GRAMMARS)}
+
+ The syntatic analyzer is the second stage in this compiler. It recibes the flow of tokens generate by the lexical analizer and verifies that the secuence fullfill the structural rules of the language.
+
+ To define this rules in a rigurous way, it uses the CFG (CONTEXT-FREE GRAMMARS), it helps to stablish which rules are valid using the production rules.
+ 
+ In this proyect, the CFG defines the structure to prodecue any instruction (StmtList), covering numeric declarations (DeclNum), assignments (AssignSmt), and flow control statements (lfStmt, WhileStmt, ForStmtm)
+
+ An example given is the formal rule of declaring a number (and optionally initialize it) it defines matematically in the next way:
+
+
+ \vspace{0.5 cm }
+ \begin{center}
+     $DeclNum -> TypeNum ID AssignOpNum $
+ \end{center}
+
+ \vspace{0.5 cm }
+
+The main objective of the parser is to organize the sequence of tokens into a hierarchical structure called a parse tree (or syntax tree). This structure shows how the tokens relate to each other according to the language rules and confirms that the code follows the correct syntax
+
+\subsection{Parsing Strategies: Top-Down Approach and Precedence Resolution}
+
+ There are two main ways to construct the syntax tree: Top-Down and Bottom-Up. This project implements a Top-Down approach through a Recursive Descent Parser. In this method, the tree is built starting from the initial symbol of the grammar down to the leaves (the tokens), associating a recursive function with each grammar rule to process the input from left to right.
+
+To ensure that this approach works mathematically without entering infinite loops and respecting the operation hierarchies, the grammar was designed with specific features: 
+
+\begin{itemize}
+    \item \textbf{Elimination of left recursion (Left-Recursion): } The production rules for mathematical expressions (MathExpr) were rewritten to be right-recursive.
+    \item \textbf{Layered Precedence:} To evaluate logical conditions (Cond) while respecting the standardized hierarchy, the rules were divided into levels. The analysis starts at the lowest priority level looking for the OR logical operator (CondOrPrime), descends to the intermediate AND level (CondAndPrime), evaluates the level of relational comparisons (CondRel), and culminates at the highest priority level processing the logical NOT and parentheses (CondUnary). 
+\end{itemize}
 
 \section{Desarrollo}
 
-Es la descripción de la implementación realizada en el lenguaje de programación, así como las pruebas realizadas para obtener los resultados. Es importante resaltar lo siguiente:
+Es la descripción de la implementación realizada en el lenguaje de programación,
+así como las pruebas realizadas para obtener los resultados. Es importante resaltar lo
+siguiente:
 
 \begin{itemize}
     \item No se debe mostrar código, solo describir funciones o la aplicación de los conceptos teóricos.
