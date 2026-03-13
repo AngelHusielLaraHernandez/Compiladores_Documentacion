@@ -1,38 +1,102 @@
 
-# ¿Cómo Ejecutar el Programa?
+# Analizador Léxico de C - Guía de Ejecución
 
-Se deben instalar las dependencias necesarias para la ejeción del programa
+## 1. Requisitos previos
 
-## Usando requirements
-~~~
-pip install -r requirements.txt
-~~~
-## Usando pip install
+- Python 3.8 o superior
+- `pip` disponible
 
-~~~
-pip install Pygments
-pip install colorama
-~~~
+## 2. Crear y activar entorno virtual
 
-# ¿Cómo USAR el Programa?
+Desde la carpeta `python/` del proyecto:
 
-Cambiarse al directorio src.
+```bash
+cd python
+python3 -m venv .venv
+```
 
-El programa para leer tiene dos modos por **teclado** y haciendo uso de **archivos**
+Activar el entorno virtual:
 
-## Por medio del teclado
+```bash
+# Linux / macOS
+source .venv/bin/activate
 
-Si se quiere realizar por telclado se debe de ejecutar el programa sin ningun argumento (recordar cambiarse a la carpeta **src**)
-~~~
-python main.py
-~~~
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
 
-El programa permite escribir por teclado liena a linea código de C.
-Cuando se quiere que deje de leer por teclado se debe de ingresar el simbolo **$**
+# Windows (CMD)
+.venv\Scripts\activate.bat
+```
 
-## Por medio del archivos
+Cuando esté activo, verás `(.venv)` al inicio de la terminal.
 
-Para leer un archivo se debe de colocar primero el archivo dentro de la carpeta **inputs** para posteriormente ejecutar el programa con el nombre del archivo como argumento
-~~~
-python main.py <nombre_programa>
-~~~
+## 3. Instalar dependencias
+
+Con el entorno virtual activo:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Dependencias requeridas por el proyecto:
+
+- `pygments>=2.19.2`
+- `colorama>=0.4.6`
+
+## 4. Ejecutar el programa
+
+El programa principal es `src/main.py`.
+
+### Opción A: entrada por teclado
+
+```bash
+python src/main.py
+```
+
+Escribe el código C línea por línea. Para finalizar la captura, usa el símbolo `$`.
+
+### Opción B: entrada por archivo
+
+1. Coloca el archivo fuente dentro de `python/inputs/`.
+2. Ejecuta:
+
+```bash
+python src/main.py <nombre_archivo>
+```
+
+Ejemplo:
+
+```bash
+python src/main.py code.c
+```
+
+## 5. Archivos de salida
+
+Los resultados exportados se guardan en `python/outputs/` con el formato:
+
+- `<nombre_archivo>_output.txt` para análisis por archivo
+- `keyboard_output.txt` para análisis por teclado (si se exporta)
+
+## 6. Errores comunes
+
+Si aparece `ModuleNotFoundError` (por ejemplo, `pygments` o `colorama`):
+
+1. Verifica que el entorno virtual esté activo.
+2. Reinstala dependencias:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+3. Ejecuta siempre con el mismo `python` del entorno virtual:
+
+```bash
+python src/main.py
+```
+
+Para salir del entorno virtual:
+
+```bash
+deactivate
+```

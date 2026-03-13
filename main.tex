@@ -22,6 +22,7 @@
 \usepackage{tikz}
 \usepackage{imakeidx}
 \usepackage{xcolor}
+\usepackage{colortbl} % <-- Added for \rowcolor
 \usepackage{tcolorbox}
 \usepackage{csquotes} % recomendado para babel/biblatex
 
@@ -149,18 +150,29 @@ La implementación del Lexer esta escrita en Python, pero nuestro CFG considera 
 
 Al momento de usar Pygments se tuvó en cuenta que la Familias de tokens de Pygments no coinciden exactamente con los tokens vistos en el curso, por lo que la asociación quedaría de la siguiente menera:
 
-\begin{itemize}
-    \item Keyword → Keyword
-    \item Name → Identifier
-    \item Operator → Operator
-    \item Punctuation → Punctuator
-    \item Number → Constant
-    \item String → Literal
-\end{itemize}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{|>{\bfseries}l|l|}
+        \hline
+        \rowcolor{gray!20} Familia de tokens (Pygments) & Categoría del Curso \\ \hline
+        Token.Keyword & KEYWORD \\ \hline
+        Token.Name & IDENTIFIER \\ \hline
+        Token.Operator & OPERATOR \\ \hline
+        Token.Punctuation & PUNCTUATION \\ \hline
+        Token.Literal.Number & CONSTANT \\ \hline
+        Token.Literal / Token.Literal.String & LITERAL \\ \hline
+    \end{tabular}
+    \caption{Mapeo de tokens de Pygments a las categorías del curso.}
+    \label{tab:token_mapping}
+\end{table}
 
 Cabe recalcar que se consideraron los casos especiales de los literales de cadena delimitados por comillas en una misma línea, agrupando la comilla de apertura, el contenido y la comilla de cierre en un único token para que se reconozca como un literal.
 
 Al final el programa después de procesar la entrada deberá imprimir una tabla con el análisis léxico de la entrada y el conteo de los grupos de tokens.
+
+\subsection{Gramatica}
+
 
 \subsection{Entrada/Salida y Ejecución}
 
