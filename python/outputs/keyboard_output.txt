@@ -1,0 +1,29 @@
+Lexical Analysis - Results
+==================================================
+TOKEN TYPE           | LEXEMS
+--------------------------------------------------
+Total tokens found: 5
+
+
+IDENTIFIER           | prinf
+PUNCTUATION          | (
+LITERAL              | "Hola Mundo"
+PUNCTUATION          | )
+PUNCTUATION          | ;
+==================================================
+GROUPED TOKENS BY TYPE
+==================================================
+IDENTIFIER (Total: 1):
+    prinf: 1
+
+PUNCTUATION (Total: 3):
+    (: 1
+    ): 1
+    ;: 1
+
+LITERAL (Total: 1):
+    "Hola Mundo": 1
+
+Total tokens found: 5
+
+

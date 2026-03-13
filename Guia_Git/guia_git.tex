@@ -1,0 +1,177 @@
+\documentclass[letterpaper,12pt,oneside]{article}
+
+% --- CONFIGURACIÓN DE PÁGINA (GEOMETRÍA) ---
+\usepackage[
+    left=25mm, 
+    right=25mm,
+    top=30mm,
+    bottom=30mm,
+    headheight=15pt, 
+]{geometry}
+
+% --- PAQUETES DE IDIOMA Y FUENTES ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot,es-tabla]{babel}
+
+% --- PAQUETES GRÁFICOS Y DE DISEÑO ---
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings, fitting}
+
+% --- HIPERVÍNCULOS ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% --- COLORES PARA CAJAS DE CÓDIGO ---
+\definecolor{bgcode}{HTML}{F4F4F4}
+\definecolor{framecode}{HTML}{4A4A4A}
+
+% --- ENTORNO PARA COMANDOS GIT ---
+\newtcblisting{gitbox}[1][]{
+    colback=bgcode,
+    colframe=framecode,
+    arc=3pt,
+    boxrule=1pt,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    fontupper=\ttfamily\small,
+    listing only,
+    title=#1,
+    coltitle=white,
+    fonttitle=\bfseries
+}
+
+% --- ENCABEZADOS ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\textbf{Guía Completa de Git y Trabajo Colaborativo}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+    {\Huge \textbf{Guía de Configuración y Uso de Git}}\\
+    \vspace{0.5cm}
+    {\large \textit{Manual integral para trabajo colaborativo en repositorio}}
+\end{center}
+
+\vspace{1cm}
+
+\section{Configuración Inicial del Colaborador}
+Antes de comenzar a trabajar en cualquier proyecto usando Git, cada colaborador debe configurar su identidad. Esto es crucial, ya que los *commits* (guardados) llevarán este nombre y correo, permitiendo saber quién hizo qué cambio.
+
+\begin{gitbox}[Configuración de Identidad]
+git config --global user.name "Tu Nombre Completo"
+git config --global user.email "tu_correo@ejemplo.com"
+\end{gitbox}
+
+Para verificar que los datos se han guardado correctamente, puedes listar tu configuración con:
+\begin{gitbox}[]
+git config --list
+\end{gitbox}
+
+\section{Obtener el Repositorio}
+Para comenzar a trabajar, necesitas descargar el proyecto desde la nube (GitHub, GitLab, etc.) a tu computadora local. Esto se hace una sola vez.
+
+\begin{gitbox}[Clonar el repositorio]
+git clone https://ruta-del-repositorio.git
+\end{gitbox}
+
+\section{Manejo de Ramas (Branches)}
+Las ramas permiten a los colaboradores trabajar en nuevas características sin afectar el código principal (usualmente llamado \texttt{main} o \texttt{master}).
+
+\subsection{Crear y listar ramas}
+Para ver en qué rama te encuentras actualmente y la lista de ramas locales:
+\begin{gitbox}[]
+git branch
+\end{gitbox}
+
+Para crear una rama nueva y moverte a ella inmediatamente:
+\begin{gitbox}[Crear rama y cambiar a ella]
+git checkout -b nombre_de_tu_rama
+# Alternativa en versiones modernas de Git:
+git switch -c nombre_de_tu_rama
+\end{gitbox}
+
+\subsection{Moverse entre ramas}
+Si necesitas saltar de la rama en la que estás hacia otra (por ejemplo, para revisar cómo iba \texttt{main}), asegúrate primero de no tener cambios pendientes.
+\begin{gitbox}[Navegación entre ramas]
+git checkout nombre_de_la_rama_existente
+# Alternativa moderna:
+git switch nombre_de_la_rama_existente
+\end{gitbox}
+
+\section{Flujo de Trabajo (Guardar y Subir Cambios)}
+Una vez que has modificado archivos, el flujo tradicional consiste en 3 pasos: preparar (\textit{add}), empaquetar (\textit{commit}) y publicar (\textit{push}).
+
+\textbf{Paso 1: Añadir los cambios.} 
+\begin{gitbox}[Preparar archivos]
+git add .
+# El punto (.) añade todos los archivos modificados. 
+# Si solo quieres añadir uno: git add nombre_archivo.tex
+\end{gitbox}
+
+\textbf{Paso 2: Guardar el estado (Commit).}
+\begin{gitbox}[Crear el Commit]
+git commit -m "Mensaje descriptivo sobre lo que se modificó"
+\end{gitbox}
+
+\textbf{Paso 3: Subir a la nube (Push).}
+\begin{gitbox}[Subir los cambios]
+git push origin nombre_de_tu_rama
+# Si es la primera vez que subes esa rama, usa la bandera -u:
+git push -u origin nombre_de_tu_rama
+\end{gitbox}
+
+\textbf{Descargar cambios del equipo (Pull).}
+Siempre antes de empezar a programar en el día, es buena idea traer los últimos avances de tus compañeros.
+\begin{gitbox}[Actualizar localmente]
+git pull origin main
+\end{gitbox}
+
+\section{Resolución de Errores y Comandos de Auxilio}
+Es normal equivocarse. Git tiene comandos valiosos para saber qué está pasando o para retroceder en el tiempo.
+
+\subsection{Ver el estado actual}
+Si no sabes qué archivos modificaste o dónde estás parado, este es tu mejor amigo.
+\begin{gitbox}[Revisar estado]
+git status
+\end{gitbox}
+
+\subsection{Historial de cambios (\textit{Logs})}
+Para ver quién hizo los últimos commits y cuál es su ID.
+\begin{gitbox}[]
+git log --oneline
+\end{gitbox}
+
+\subsection{Deshacer cosas}
+\textbf{1. Quitar algo del \texttt{git add} previo al \texttt{commit}:}
+Se te fue un archivo basura por accidente:
+\begin{gitbox}[Restaurar stage]
+git restore --staged archivo_equivocado.tex
+\end{gitbox}
+
+\textbf{2. Borrar las últimas modificaciones de un archivo:}
+ATENCIÓN: Esto borrará tus cambios y lo dejará como estaba en el último commit.
+\begin{gitbox}[Limpiar archivo local]
+git restore archivo_que_quieres_regresar.tex
+\end{gitbox}
+
+\textbf{3. Equivocación en el último \texttt{commit} (pero sin haber hecho \texttt{push}):}
+Si enviaste un commit incompleto o escribiste mal el mensaje:
+\begin{gitbox}[Deshacer último commit]
+git reset HEAD~1
+\end{gitbox}
+
+\end{document}

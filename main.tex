@@ -1,0 +1,114 @@
+\documentclass[letterpaper,12pt,oneside]{article}
+
+% --- CONFIGURACIÓN DE PÁGINA (GEOMETRÍA) ---
+\usepackage[
+    left=25mm, 
+    right=25mm,
+    top=35mm,
+    bottom=30mm,
+    headheight=77pt, 
+    papersize={21.59cm,27.94cm}
+]{geometry}
+
+% --- PAQUETES DE IDIOMA
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% --- PAQUETES GRÁFICOS Y DE DISEÑO ---
+\usepackage{caption, subcaption} 
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{imakeidx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{csquotes} % recomendado para babel/biblatex
+
+% --- BIBLIOGRAFÍA ---
+\usepackage[backend=biber, style=apa, sortcites, url=true]{biblatex}
+\addbibresource{bibliografias/referencias.bib}
+
+\graphicspath{{./img/}}
+\usepackage{setspace}
+%\usepackage[round]{natbib}
+
+% --- ÍNDICE CON PUNTOS ---
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% --- HIPERVÍNCULOS ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan
+}
+
+% --- LISTAS ---
+\usepackage{enumitem}
+
+% --- ENCABEZADOS Y PIES DE PÁGINA ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} 
+\fancyhead[L]{\includegraphics[height=1.5cm]{izq.png}}
+\fancyhead[C]{\textbf{UNAM - Group 5} \hspace{0.5cm} \textbf{Compilers-Lexer}}
+\fancyhead[R]{\includegraphics[height=1.5cm]{der.png}}
+\fancyfoot[C]{\thepage} 
+\renewcommand{\headrulewidth}{0.4pt} 
+\renewcommand{\footrulewidth}{0.4pt}  
+
+\begin{document}
+%\frontmatter
+\input{FrontPage/portada.tex}
+ 
+\tableofcontents
+\clearpage
+    
+%\mainmatter
+
+\section{Introducción} %
+
+Este apartado debe abordar los siguientes puntos:
+
+\begin{itemize}
+    \item \textbf{Planteamiento del problema.} Se hace una descripción del problema a resolver.
+    \item \textbf{Motivación.} Se describe porqué es necesario dar solución al problema.
+    \item \textbf{Objetivos.} Lo que se se espera obtener de darle solución al problema.
+\end{itemize}
+
+\section{Marco Teórico}
+
+Son los conceptos aplicados, principalmente los vistos en clase, con los que se va a dar solución al problema, explicados de forma concreta, ya sea con su interpretación personal o bien con referencias bibliográficas sólidas.
+
+\section{Desarrollo}
+
+Es la descripción de la implementación realizada en el lenguaje de programación, así como las pruebas realizadas para obtener los resultados. Es importante resaltar lo siguiente:
+
+\begin{itemize}
+    \item No se debe mostrar código, solo describir funciones o la aplicación de los conceptos teóricos.
+    \item Las pruebas es describir las entradas ingresadas y las salidas obtenidas.
+\end{itemize}
+
+\section{Resultados}
+
+Mediante capturas de pantalla y una breve descripción seguida de la captura se presentan los resultados finales de su aplicación.
+
+\section{Conclusiones}
+
+Se presenta un análisis de los resultados obtenidos, donde se destaca la importancia de la aplicación de los conceptos teóricos para resolver el problema. Es importante resaltar lo siguiente:
+
+\begin{itemize}
+    \item No es describir si les gustó la actividad o no.
+    \item No es decir que se obtuvo de la práctica.
+    \item No es describir lo que fue difícil.
+\end{itemize}
+
+    % Impresión Referencias
+    \nocite{*}
+    \printbibliography[heading=bibintoc, title={Referencias}]
+    
+\end{document}

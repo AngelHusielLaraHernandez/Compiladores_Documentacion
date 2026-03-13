@@ -1,0 +1,83 @@
+ANALISIS LEXICO - REPORTE DETALLADO
+==================================================
+TOKEN TYPE           | VALUE
+--------------------------------------------------
+KEYWORD              | int
+IDENTIFIER           | main
+PUNCTUATION          | (
+PUNCTUATION          | )
+PUNCTUATION          | {
+KEYWORD              | int
+IDENTIFIER           | x
+PUNCTUATION          | ,
+IDENTIFIER           | a
+OPERATOR             | =
+CONSTANT             | 2
+PUNCTUATION          | ,
+IDENTIFIER           | b
+OPERATOR             | =
+CONSTANT             | 3
+PUNCTUATION          | ,
+IDENTIFIER           | c
+OPERATOR             | =
+CONSTANT             | 5
+PUNCTUATION          | ;
+IDENTIFIER           | x
+OPERATOR             | =
+IDENTIFIER           | a
+OPERATOR             | +
+IDENTIFIER           | b
+OPERATOR             | *
+IDENTIFIER           | c
+PUNCTUATION          | ;
+IDENTIFIER           | printf
+PUNCTUATION          | (
+LITERAL              | "The value of x is: %d"
+PUNCTUATION          | ,
+IDENTIFIER           | x
+PUNCTUATION          | )
+PUNCTUATION          | ;
+KEYWORD              | return
+CONSTANT             | 0
+PUNCTUATION          | ;
+PUNCTUATION          | }
+==================================================
+Total tokens encontrados: 39
+
+
+RESUMEN POR CATEGORIAS
+==================================================
+KEYWORD (Total: 3):
+    int: 2
+    return: 1
+
+IDENTIFIER (Total: 11):
+    main: 1
+    x: 3
+    a: 2
+    b: 2
+    c: 2
+    printf: 1
+
+PUNCTUATION (Total: 14):
+    (: 2
+    ): 2
+    {: 1
+    ,: 4
+    ;: 4
+    }: 1
+
+OPERATOR (Total: 6):
+    =: 4
+    +: 1
+    *: 1
+
+CONSTANT (Total: 4):
+    2: 1
+    3: 1
+    5: 1
+    0: 1
+
+LITERAL (Total: 1):
+    "The value of x is: %d": 1
+

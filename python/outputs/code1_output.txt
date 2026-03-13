@@ -1,0 +1,92 @@
+Lexical Analysis - Results
+==================================================
+TOKEN TYPE           | LEXEMS
+--------------------------------------------------
+Total tokens found: 44
+
+
+KEYWORD              | int
+IDENTIFIER           | main
+PUNCTUATION          | (
+PUNCTUATION          | )
+PUNCTUATION          | {
+KEYWORD              | int
+IDENTIFIER           | n
+PUNCTUATION          | ;
+IDENTIFIER           | scanf
+PUNCTUATION          | (
+LITERAL              | "%d"
+PUNCTUATION          | ,
+SPECIAL              | &
+IDENTIFIER           | n
+PUNCTUATION          | )
+PUNCTUATION          | ;
+KEYWORD              | for
+PUNCTUATION          | (
+KEYWORD              | int
+IDENTIFIER           | i
+OPERATOR             | =
+CONSTANT             | 0
+PUNCTUATION          | ;
+IDENTIFIER           | i
+OPERATOR             | <
+IDENTIFIER           | n
+PUNCTUATION          | ;
+IDENTIFIER           | i
+OPERATOR             | +
+OPERATOR             | +
+PUNCTUATION          | )
+PUNCTUATION          | {
+IDENTIFIER           | printf
+PUNCTUATION          | (
+LITERAL              | "Hola Mundo desde %d\n"
+PUNCTUATION          | ,
+IDENTIFIER           | i
+PUNCTUATION          | )
+PUNCTUATION          | ;
+PUNCTUATION          | }
+KEYWORD              | return
+CONSTANT             | 0
+PUNCTUATION          | ;
+PUNCTUATION          | }
+==================================================
+GROUPED TOKENS BY TYPE
+==================================================
+KEYWORD (Total: 5):
+    int: 3
+    for: 1
+    return: 1
+
+IDENTIFIER (Total: 10):
+    main: 1
+    n: 3
+    scanf: 1
+    i: 4
+    printf: 1
+
+PUNCTUATION (Total: 20):
+    (: 4
+    ): 4
+    {: 2
+    ;: 6
+    ,: 2
+    }: 2
+
+OPERATOR (Total: 4):
+    =: 1
+    <: 1
+    +: 2
+
+CONSTANT (Total: 2):
+    0: 2
+
+LITERAL (Total: 2):
+    "%d": 1
+    "Hola Mundo desde %d\n": 1
+
+SPECIAL (Total: 1):
+    &: 1
+
+Total tokens found: 44
+
+
