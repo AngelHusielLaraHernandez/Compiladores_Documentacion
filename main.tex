@@ -70,14 +70,26 @@
     
 %\mainmatter
 
-\section{Introducción} %
+\section{Introduction} %
 
-Este apartado debe abordar los siguientes puntos:
+This document contains the necessary documentation for the understanding in the construction of a lexical analyzer, where it will process source code by reading it from a file or text string. This program will be able to identify, classify and count the tokens in the code that was provided to it, in addition these will be separated into categories such as keywords, identifiers, operators, punctuators, constants and literals.
+
+However, the lexer program meets the restriction of not making use of the FLEX tool, so a lexical analyzer was implemented using the Python Pygments library, which provides a lexer for the C language.
+
+Now then, the lexical analyzer represents the initial phase of a compilation process, where this sets the foundations for the formulation and improvement of a context-free grammar (CFG), this will use a left factorization, which later will be used for the construction of a parser, which will be responsible for validating the syntactic structure of the code that we want to compile, ensuring that it complies with the rules defined in the CFG.
+
+\subsection*{Objectives}
 
 \begin{itemize}
-    \item \textbf{Planteamiento del problema.} Se hace una descripción del problema a resolver.
-    \item \textbf{Motivación.} Se describe porqué es necesario dar solución al problema.
-    \item \textbf{Objetivos.} Lo que se se espera obtener de darle solución al problema.
+    \item Build a lexical analyzer capable of processing code through the passing of a file or a text string.
+    
+    \item Generate a table with the lexical analysis of the input, classifying the tokens (such as keywords, identifiers, operators, punctuators, constants and literals) and giving a count for each category.
+    
+    \item Provide a basic proposal of Context-Free Grammar (CFG) that represents one of the reading examples, applying left factorization to improve that grammar.
+    
+    \item Package the application following software engineering practices, name it as \\
+\texttt{unam.fi.compilers.g5.00} and share the repository link with public permissions.
+
 \end{itemize}
 
 \section{Theorical Framework}
@@ -214,9 +226,9 @@ Se presenta un análisis de los resultados obtenidos, donde se destaca la import
     \item No es describir lo que fue difícil.
 \end{itemize}
 
-    % Impresión Referencias
-    \nocite{*}
-    \printbibliography[heading=bibintoc, title={Referencias}]
+% Impresión Referencias
+\nocite{*}
+\printbibliography[heading=bibintoc, title={Referencias}]
     
 
 \end{document}
