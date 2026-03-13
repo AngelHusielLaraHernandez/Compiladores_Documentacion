@@ -132,18 +132,77 @@ To ensure that this approach works mathematically without entering infinite loop
 
 \section{Desarrollo}
 
-Es la descripción de la implementación realizada en el lenguaje de programación,
-así como las pruebas realizadas para obtener los resultados. Es importante resaltar lo
-siguiente:
+\subsection{Descripción general de la implementación}
+La implementación del Lexer esta escrita en Python, pero nuestro CFG considera código escrito en C con las instrucciones descritas en SmtList y nos apoyamos de pygments de lex para analizar lineas de entrada ya sea mediante teclado o por medio de un archivo.
+
+Al momento de usar Pygments se tuvó en cuenta que la Familias de tokens de Pygments no coinciden exactamente con los tokens vistos en el curso, por lo que la asociación quedaría de la siguiente menera:
 
 \begin{itemize}
-    \item No se debe mostrar código, solo describir funciones o la aplicación de los conceptos teóricos.
-    \item Las pruebas es describir las entradas ingresadas y las salidas obtenidas.
+    \item Keyword → Keyword
+    \item Name → Identifier
+    \item Operator → Operator
+    \item Punctuation → Punctuator
+    \item Number → Constant
+    \item String → Literal
 \end{itemize}
+
+Cabe recalcar que se consideraron los casos especiales de los literales de cadena delimitados por comillas en una misma línea, agrupando la comilla de apertura, el contenido y la comilla de cierre en un único token para que se reconozca como un literal.
+
+Al final el programa después de procesar la entrada deberá imprimir una tabla con el análisis léxico de la entrada y el conteo de los grupos de tokens.
+
+\subsection{Entrada/Salida y Ejecución}
+
+El analizador léxico desarrollado soporta dos modos de operación para entradas en lenguaje C, lectura desde archivo y lectura desde teclado.
+
+\begin{enumerate}
+    \item \textbf{Lectura desde archivo.}  
+    En este modo, el usuario debe colocar el archivo en la carpeta inputs y el sistema lo lee usando codificación UTF-8 y posteriormente procesa el contenido línea por línea y al final del análisis léxico, los resultados pueden ser exportados hacia la carpeta outputs.
+
+    \item \textbf{Lectura desde teclado.}  
+    El analizador permite ingresar código fuente directamente desde la terminal. La captura finaliza cuando el usuario introduce el símbolo terminal \texttt{\$}, el cual actúa como delimitador de fin de entrada.  
+ \end{enumerate}
+
+Durante la ejecución, el sistema realiza las siguientes operaciones principales:
+
+\begin{itemize}
+    \item Tokenización del código fuente mediante el lexer de C proporcionado por la biblioteca \textit{Pygments}.
+    \item Clasificación de cada token conforme a las categorías definidas en el curso (Keyword, Identifier, Operator, Punctuator, Constant y Literal).
+    \item Eliminación de tokens irrelevantes como espacios en blanco o saltos de línea que no aportan información sintáctica.
+    \item Agrupación y conteo total de tokens por categoría.
+    \item Visualización opcional del código fuente con resaltado de tokens en colores y exportación de resultados a un archivo de texto.
+\end{itemize}
+
+Cabe mencionar que el caso particular del carácter \texttt{\&} utilizado en la función \texttt{scanf()}, así como ciertos delimitadores como paréntesis, llaves, comas y punto y coma se trataron explícitamente como punctuators debido a que la biblioteca utilizada no los categoriza de forma consistente.
+
+\subsection{Relación con la CFG propuesta}
+
+El diseño del analizador léxico se realizó tomando como referencia la gramática libre de contexto definida para el lenguaje C reducido considerado en este proyecto.  
+Nuestra CFG contempla instrucciones como declaraciones de variables numéricas y de carácter, asignaciones, estructuras de control (\texttt{if}, \texttt{while}, \texttt{for}), operaciones unarias de incremento y decremento, así como llamadas a funciones de entrada/salida (\texttt{printf} y \texttt{scanf}) \textit{\cite{cfglexer}}.
+
+También se definieron reglas de producción para expresiones matemáticas y condiciones lógicas respetando la precedencia de operadores mediante un enfoque de derivación por niveles, donde los operadores lógicos OR presentan la menor prioridad, seguidos por AND, operadores relacionales y finalmente operadores unarios como la negación lógica y el uso de paréntesis.
+
+\subsection{Pruebas realizadas}
+Para validar nuestro analizador léxico, se propusieron un par de pruebas utilizando fragmentos de código en lenguaje C que incluyen declaraciones, expresiones aritméticas, llamadas a funciones de entrada/salida y estructuras de control contempladas en la CFG propuesta.
+\begin{itemize}
+    \item \textbf{Código 1: Declaraciones y expresiones aritméticas}  
+
+    En esta prueba se analizó un programa que incluye declaraciones de variables numéricas, una asignación con expresión aritmética y una llamada a la función \texttt{printf()}. El analizador léxico identificó correctamente palabras clave, identificadores, operadores de asignación y operadores aritméticos, así como constantes numéricas y delimitadores del lenguaje.
+
+    De igual forma, se verificó el reconocimiento adecuado del literal de cadena utilizado en la función de salida, el cual fue agrupado como un único token. El resultado del análisis permitió obtener el conteo total de tokens clasificados por categoría, validando la correcta tokenización de expresiones aritméticas y sentencias de impresión.
+
+    \item \textbf{Código 2: Entrada de datos y estructura iterativa}  
+
+    En esta prueba se evaluó un programa que realiza lectura de datos mediante \texttt{scanf()} y emplea una estructura iterativa \texttt{for}. Durante el análisis se reconocieron correctamente las palabras clave asociadas al ciclo, los operadores relacionales y de incremento, así como los delimitadores correspondientes.
+
+    También se verificó la clasificación del símbolo especial \texttt{\&} utilizado para la lectura por referencia y la correcta identificación del literal de cadena dentro de la función \texttt{printf()}. Los resultados confirmaron que el analizador puede procesar adecuadamente instrucciones iterativas y llamadas a funciones de entrada/salida, generando la tabla y el conteo agrupado de tokens.
+\end{itemize}
+
+
 
 \section{Resultados}
 
 Mediante capturas de pantalla y una breve descripción seguida de la captura se presentan los resultados finales de su aplicación.
+
 
 \section{Conclusiones}
 
@@ -159,4 +218,5 @@ Se presenta un análisis de los resultados obtenidos, donde se destaca la import
     \nocite{*}
     \printbibliography[heading=bibintoc, title={Referencias}]
     
+
 \end{document}
