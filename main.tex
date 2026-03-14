@@ -317,7 +317,107 @@ Para respetar rigurosamente la jerarquía de las operaciones lógicas, las regla
 \newpage
 \subsubsection*{5. Autómata Finito Determinista (DFA) del Analizador Sintáctico Predictivo}
 
-A continuación se presenta el autómata de estados finitos determinista que modela el comportamiento del analizador sintáctico predictivo (\textit{parser top-down}) basado en la gramática libre de contexto definida anteriormente. El estado $q_0$ es el estado inicial y de aceptación (representando la producción $\text{Stmt} \rightarrow \varepsilon$). Cada camino desde $q_0$ corresponde al reconocimiento de un tipo de instrucción; al completarla, el autómata retorna a $q_0$ para procesar la siguiente instrucción.
+Se presenta el autómata de estados finitos determinista que modela el comportamiento del analizador sintáctico predictivo (\textit{parser top-down}) basado en la gramática libre de contexto definida anteriormente. El estado $q_0$ es el estado inicial y de aceptación (representando la producción $\text{Stmt} \rightarrow \varepsilon$). Cada camino desde $q_0$ corresponde al reconocimiento de un tipo de instrucción; al completarla, el autómata retorna a $q_0$ para procesar la siguiente instrucción.
+
+\vspace{0.3cm}
+\textbf{Tabla de transiciones por producción:}
+
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{small}
+\begin{longtable}{|>{\bfseries}l|l|l|l|}
+\hline
+\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\endhead
+\hline
+\endfoot
+
+\multirow{6}{*}{DeclNum}
+    & $q_0$  & TypeNum   & $q_1$  \\ \cline{2-4}
+    & $q_1$  & ID        & $q_2$  \\ \cline{2-4}
+    & $q_2$  & \texttt{=}        & $q_3$  \\ \cline{2-4}
+    & $q_3$  & MathExpr  & $q_4$  \\ \cline{2-4}
+    & $q_4$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
+    & $q_2$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
+
+\multirow{6}{*}{DeclChar}
+    & $q_0$  & \texttt{char}     & $q_5$  \\ \cline{2-4}
+    & $q_5$  & ID        & $q_6$  \\ \cline{2-4}
+    & $q_6$  & \texttt{=}        & $q_7$  \\ \cline{2-4}
+    & $q_7$  & VALUE\_CHAR & $q_8$ \\ \cline{2-4}
+    & $q_8$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
+    & $q_6$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
+
+\multirow{4}{*}{AssignStmt}
+    & $q_0$   & ID             & $q_9$   \\ \cline{2-4}
+    & $q_9$   & AssignExprOp   & $q_{10}$ \\ \cline{2-4}
+    & $q_{10}$ & MathExpr      & $q_{11}$ \\ \cline{2-4}
+    & $q_{11}$ & \texttt{;}    & $q_0$   \\ \hline
+
+\multirow{3}{*}{UnaryStmt (prefijo)}
+    & $q_0$   & IncDecOp   & $q_{12}$ \\ \cline{2-4}
+    & $q_{12}$ & ID         & $q_{13}$ \\ \cline{2-4}
+    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
+
+\multirow{2}{*}{UnaryStmt (posfijo)}
+    & $q_9$   & IncDecOp   & $q_{13}$ \\ \cline{2-4}
+    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
+
+\multirow{7}{*}{IfStmt}
+    & $q_0$   & \texttt{if}        & $q_{14}$ \\ \cline{2-4}
+    & $q_{14}$ & \texttt{(}         & $q_{15}$ \\ \cline{2-4}
+    & $q_{15}$ & Cond               & $q_{16}$ \\ \cline{2-4}
+    & $q_{16}$ & \texttt{)}         & $q_{17}$ \\ \cline{2-4}
+    & $q_{17}$ & \texttt{\{}        & $q_{18}$ \\ \cline{2-4}
+    & $q_{18}$ & StmtList           & $q_{19}$ \\ \cline{2-4}
+    & $q_{19}$ & \texttt{\}}        & $q_0$   \\ \hline
+ \newpage
+
+\multirow{7}{*}{WhileStmt}
+    & $q_0$   & \texttt{while}     & $q_{20}$ \\ \cline{2-4}
+    & $q_{20}$ & \texttt{(}         & $q_{21}$ \\ \cline{2-4}
+    & $q_{21}$ & Cond               & $q_{22}$ \\ \cline{2-4}
+    & $q_{22}$ & \texttt{)}         & $q_{23}$ \\ \cline{2-4}
+    & $q_{23}$ & \texttt{\{}        & $q_{24}$ \\ \cline{2-4}
+    & $q_{24}$ & StmtList           & $q_{25}$ \\ \cline{2-4}
+    & $q_{25}$ & \texttt{\}}        & $q_0$   \\ \hline
+
+\multirow{11}{*}{ForStmt}
+    & $q_0$   & \texttt{for}       & $q_{26}$ \\ \cline{2-4}
+    & $q_{26}$ & \texttt{(}         & $q_{27}$ \\ \cline{2-4}
+    & $q_{27}$ & ForInit            & $q_{28}$ \\ \cline{2-4}
+    & $q_{28}$ & \texttt{;}         & $q_{29}$ \\ \cline{2-4}
+    & $q_{29}$ & ForCond            & $q_{30}$ \\ \cline{2-4}
+    & $q_{30}$ & \texttt{;}         & $q_{31}$ \\ \cline{2-4}
+    & $q_{31}$ & ForStep            & $q_{32}$ \\ \cline{2-4}
+    & $q_{32}$ & \texttt{)}         & $q_{33}$ \\ \cline{2-4}
+    & $q_{33}$ & \texttt{\{}        & $q_{34}$ \\ \cline{2-4}
+    & $q_{34}$ & StmtList           & $q_{35}$ \\ \cline{2-4}
+    & $q_{35}$ & \texttt{\}}        & $q_0$   \\ \hline
+
+\multirow{5}{*}{PrintStmt}
+    & $q_0$   & \texttt{printf}    & $q_{36}$ \\ \cline{2-4}
+    & $q_{36}$ & \texttt{(}         & $q_{37}$ \\ \cline{2-4}
+    & $q_{37}$ & PrintArgs          & $q_{38}$ \\ \cline{2-4}
+    & $q_{38}$ & \texttt{)}         & $q_{39}$ \\ \cline{2-4}
+    & $q_{39}$ & \texttt{;}         & $q_0$   \\ \hline
+
+\multirow{8}{*}{ScanStmt}
+    & $q_0$   & \texttt{scanf}     & $q_{40}$ \\ \cline{2-4}
+    & $q_{40}$ & \texttt{(}         & $q_{41}$ \\ \cline{2-4}
+    & $q_{41}$ & TEXT\_STRING        & $q_{42}$ \\ \cline{2-4}
+    & $q_{42}$ & \texttt{,}         & $q_{43}$ \\ \cline{2-4}
+    & $q_{43}$ & \texttt{\&}        & $q_{44}$ \\ \cline{2-4}
+    & $q_{44}$ & ID                 & $q_{45}$ \\ \cline{2-4}
+    & $q_{45}$ & \texttt{)}         & $q_{46}$ \\ \cline{2-4}
+    & $q_{46}$ & \texttt{;}         & $q_0$   \\ \hline
+
+\end{longtable}
+\end{small}
 
 \begin{figure}[h!]
 \centering
@@ -535,104 +635,7 @@ El autómata finito determinista se define formalmente como la 5-tupla $M = (Q, 
     \item $F = \{q_0\}$ es el conjunto de estados de aceptación
 \end{itemize}
 
-\vspace{0.3cm}
-\textbf{Tabla de transiciones por producción:}
 
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.15}
-
-\begin{small}
-\begin{longtable}{|>{\bfseries}l|l|l|l|}
-\hline
-\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
-\endfirsthead
-\hline
-\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
-\endhead
-\hline
-\endfoot
-
-\multirow{6}{*}{DeclNum}
-    & $q_0$  & TypeNum   & $q_1$  \\ \cline{2-4}
-    & $q_1$  & ID        & $q_2$  \\ \cline{2-4}
-    & $q_2$  & \texttt{=}        & $q_3$  \\ \cline{2-4}
-    & $q_3$  & MathExpr  & $q_4$  \\ \cline{2-4}
-    & $q_4$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
-    & $q_2$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
-
-\multirow{6}{*}{DeclChar}
-    & $q_0$  & \texttt{char}     & $q_5$  \\ \cline{2-4}
-    & $q_5$  & ID        & $q_6$  \\ \cline{2-4}
-    & $q_6$  & \texttt{=}        & $q_7$  \\ \cline{2-4}
-    & $q_7$  & VALUE\_CHAR & $q_8$ \\ \cline{2-4}
-    & $q_8$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
-    & $q_6$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
-
-\multirow{4}{*}{AssignStmt}
-    & $q_0$   & ID             & $q_9$   \\ \cline{2-4}
-    & $q_9$   & AssignExprOp   & $q_{10}$ \\ \cline{2-4}
-    & $q_{10}$ & MathExpr      & $q_{11}$ \\ \cline{2-4}
-    & $q_{11}$ & \texttt{;}    & $q_0$   \\ \hline
-
-\multirow{3}{*}{UnaryStmt (prefijo)}
-    & $q_0$   & IncDecOp   & $q_{12}$ \\ \cline{2-4}
-    & $q_{12}$ & ID         & $q_{13}$ \\ \cline{2-4}
-    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
-
-\multirow{2}{*}{UnaryStmt (posfijo)}
-    & $q_9$   & IncDecOp   & $q_{13}$ \\ \cline{2-4}
-    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
-
-\multirow{7}{*}{IfStmt}
-    & $q_0$   & \texttt{if}        & $q_{14}$ \\ \cline{2-4}
-    & $q_{14}$ & \texttt{(}         & $q_{15}$ \\ \cline{2-4}
-    & $q_{15}$ & Cond               & $q_{16}$ \\ \cline{2-4}
-    & $q_{16}$ & \texttt{)}         & $q_{17}$ \\ \cline{2-4}
-    & $q_{17}$ & \texttt{\{}        & $q_{18}$ \\ \cline{2-4}
-    & $q_{18}$ & StmtList           & $q_{19}$ \\ \cline{2-4}
-    & $q_{19}$ & \texttt{\}}        & $q_0$   \\ \hline
-
-\multirow{7}{*}{WhileStmt}
-    & $q_0$   & \texttt{while}     & $q_{20}$ \\ \cline{2-4}
-    & $q_{20}$ & \texttt{(}         & $q_{21}$ \\ \cline{2-4}
-    & $q_{21}$ & Cond               & $q_{22}$ \\ \cline{2-4}
-    & $q_{22}$ & \texttt{)}         & $q_{23}$ \\ \cline{2-4}
-    & $q_{23}$ & \texttt{\{}        & $q_{24}$ \\ \cline{2-4}
-    & $q_{24}$ & StmtList           & $q_{25}$ \\ \cline{2-4}
-    & $q_{25}$ & \texttt{\}}        & $q_0$   \\ \hline
-
-\multirow{11}{*}{ForStmt}
-    & $q_0$   & \texttt{for}       & $q_{26}$ \\ \cline{2-4}
-    & $q_{26}$ & \texttt{(}         & $q_{27}$ \\ \cline{2-4}
-    & $q_{27}$ & ForInit            & $q_{28}$ \\ \cline{2-4}
-    & $q_{28}$ & \texttt{;}         & $q_{29}$ \\ \cline{2-4}
-    & $q_{29}$ & ForCond            & $q_{30}$ \\ \cline{2-4}
-    & $q_{30}$ & \texttt{;}         & $q_{31}$ \\ \cline{2-4}
-    & $q_{31}$ & ForStep            & $q_{32}$ \\ \cline{2-4}
-    & $q_{32}$ & \texttt{)}         & $q_{33}$ \\ \cline{2-4}
-    & $q_{33}$ & \texttt{\{}        & $q_{34}$ \\ \cline{2-4}
-    & $q_{34}$ & StmtList           & $q_{35}$ \\ \cline{2-4}
-    & $q_{35}$ & \texttt{\}}        & $q_0$   \\ \hline
-
-\multirow{5}{*}{PrintStmt}
-    & $q_0$   & \texttt{printf}    & $q_{36}$ \\ \cline{2-4}
-    & $q_{36}$ & \texttt{(}         & $q_{37}$ \\ \cline{2-4}
-    & $q_{37}$ & PrintArgs          & $q_{38}$ \\ \cline{2-4}
-    & $q_{38}$ & \texttt{)}         & $q_{39}$ \\ \cline{2-4}
-    & $q_{39}$ & \texttt{;}         & $q_0$   \\ \hline
-
-\multirow{8}{*}{ScanStmt}
-    & $q_0$   & \texttt{scanf}     & $q_{40}$ \\ \cline{2-4}
-    & $q_{40}$ & \texttt{(}         & $q_{41}$ \\ \cline{2-4}
-    & $q_{41}$ & TEXT\_STRING        & $q_{42}$ \\ \cline{2-4}
-    & $q_{42}$ & \texttt{,}         & $q_{43}$ \\ \cline{2-4}
-    & $q_{43}$ & \texttt{\&}        & $q_{44}$ \\ \cline{2-4}
-    & $q_{44}$ & ID                 & $q_{45}$ \\ \cline{2-4}
-    & $q_{45}$ & \texttt{)}         & $q_{46}$ \\ \cline{2-4}
-    & $q_{46}$ & \texttt{;}         & $q_0$   \\ \hline
-
-\end{longtable}
-\end{small}
 
 \vspace{0.3cm}
 \textbf{Observaciones sobre el autómata:}
