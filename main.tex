@@ -78,6 +78,7 @@
 \renewcommand{\footrulewidth}{0.4pt}  
 
 \begin{document}
+\raggedbottom
 %\frontmatter
 \input{FrontPage/portada.tex}
  
@@ -127,7 +128,7 @@ In the proyect, the lexical analyzer identifies specific sets as:
     \item \textbf{TEXT\_STRING: } Text strings enclosed in double quotes, mostly used as format specifiers
 \end{itemize}
 
-\subsection{Syntactic analysis (Parsing) and CFG (CONTEXT-FREE GRAMMARS)}
+\subsection{Syntactic analysis (Parsing) and CFG (Context-Free Grammars)}
 
  The syntatic analyzer is the second stage in this compiler. It recibes the flow of tokens generate by the lexical analizer and verifies that the secuence fullfill the structural rules of the language. [1]
 
@@ -158,19 +159,21 @@ To ensure that this approach works mathematically without entering infinite loop
     \item \textbf{Layered Precedence:} To evaluate logical conditions (Cond) while respecting the standardized hierarchy, the rules were divided into levels. The analysis starts at the lowest priority level looking for the OR logical operator (CondOrPrime), descends to the intermediate AND level (CondAndPrime), evaluates the level of relational comparisons (CondRel), and culminates at the highest priority level processing the logical NOT and parentheses (CondUnary). 
 \end{itemize}
 
-\section{Desarrollo}
+\section{Developmenmt}
 
-\subsection{Descripción general de la implementación}
-La implementación del Lexer esta escrita en Python, pero nuestro CFG considera código escrito en C con las instrucciones descritas en SmtList y nos apoyamos de pygments de lex para analizar lineas de entrada ya sea mediante teclado o por medio de un archivo.
+\subsection{Overview of the implementation}
 
-Al momento de usar Pygments se tuvó en cuenta que la Familias de tokens de Pygments no coinciden exactamente con los tokens vistos en el curso, por lo que la asociación quedaría de la siguiente menera:
+The implementation of the lexer is written in Python, but our CFG considers code write in C, with the instructions describe in SmtList and we get support in pygments of lex in order to analize the input lines, either by keyboard or a file.
+
+At the moment of using Pygments, we took in account that the family of the Pygments tokens do not exactly coincides with the tokens seeing in course, due to the asociation will stay the next way:
+
 
 \begin{table}[h]
     \centering
     \renewcommand{\arraystretch}{1.2}
         \begin{tabular}{|>{\bfseries}l|l|}
         \hline
-        \rowcolor{gray!20} Familia de tokens (Pygments) & Categoría del Curso \\ \hline
+        \rowcolor{gray!20} Family of Tokens (Pygments) & Course Category \\ \hline
         Token.Keyword & KEYWORD \\ \hline
         Token.Name & IDENTIFIER \\ \hline
         Token.Operator & OPERATOR \\ \hline
@@ -178,17 +181,18 @@ Al momento de usar Pygments se tuvó en cuenta que la Familias de tokens de Pygm
         Token.Literal.Number & CONSTANT \\ \hline
         Token.Literal / Token.Literal.String & LITERAL \\ \hline
     \end{tabular}
-    \caption{Mapeo de tokens de Pygments a las categorías del curso.}
+    \caption{Mapping of Pygments tokens to the course categories.}
     \label{tab:token_mapping}
 \end{table}
 
-Cabe recalcar que se consideraron los casos especiales de los literales de cadena delimitados por comillas en una misma línea, agrupando la comilla de apertura, el contenido y la comilla de cierre en un único token para que se reconozca como un literal.
+It should be noted that the special cases of string literals delimited by quotes on the same line were considered, grouping the opening quote, the content, and the closing quote into a single token so that it is recognized as a literal.
 
-Al final el programa después de procesar la entrada deberá imprimir una tabla con el análisis léxico de la entrada y el conteo de los grupos de tokens.
+At the end of the program, after processing the input it must print a table with the lexical analysis of the input and the count of set of tokens
 
-\subsection{Gramatica}
 
-\subsubsection*{1. Reglas de producción }
+\subsection{Grammatic}
+
+\subsubsection*{1. Production Rules }
 \begin{center}
 \begin{align*}
     \text{Stmt} &\rightarrow \text{Stmt} \ \text{StmtList} \mid \varepsilon \\
@@ -200,16 +204,16 @@ Al final el programa después de procesar la entrada deberá imprimir una tabla 
 Donde:
 
 \begin{itemize}
-    \item \textbf{Stmt} es el Símbolo Inicial para generar instrucciones.
-    \item \textbf{StmtList} representa las instrucciones específicas que se pueden producir.
-    \item \textbf{DeclNum} y \textbf{DeclChar} son las declaraciones de números y caracteres.
-    \item \textbf{AssignStmt} es para la asignación de variables.
-    \item \textbf{IfStmt, WhileStmt, ForStmt} son las estructuras de control de flujo.
-    \item \textbf{PrintStmt, ScanStmt} son las funciones de entrada y salida de datos.
-    \item \textbf{UnaryStmt} es para las sentencias unarias (pre/post incrementos).
+    \item \textbf{Stmt} Is the initial symbol to generate instructions.
+    \item \textbf{StmtList} Represents the specific instruction that can be produced.
+    \item \textbf{DeclNum} y \textbf{DeclChar} Its the declarations of numbers and characters.
+    \item \textbf{AssignStmt} Is for the variables asignation.
+    \item \textbf{IfStmt, WhileStmt, ForStmt} they are the flow control structures.
+    \item \textbf{PrintStmt, ScanStmt} they are the input and output functions of data.
+    \item \textbf{UnaryStmt} it is for unary statements (pre/post increments).
 \end{itemize}
 
-\subsubsection*{2. Reglas de produccion: }
+\subsubsection*{2.  Production rules: }
 
 \begin{align*}
     \text{DeclNum} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \text{;} \\
@@ -226,30 +230,31 @@ Donde:
 Donde:
 
 \begin{itemize}
-    \item DeclNum : Es la PR para declarar un número o declarar un número e inicializarlo.
-    \item DeclChar : PR para declarar un carácter o carácter un número e inicializarlo.
-    \item AssignStmt : Es la PR para asignar el valor a un dato ya declarado anteriormente.
-    \item TypeNum : Los tipos de datos numérico que acepta.
-    \item TypeChar : Tipo de dato de carácter que acepta.
+    \item DeclNum : Is the PR to declare a number or declare a number and initialize it.
+    \item DeclChar :  PR to declare a character or declare a character with a number and initialize it.
+    \item AssignStmt : Is the PR for assigning a value to a data previously declared.
+    \item TypeNum : The data type numeric that it accepts.
+    \item TypeChar : Tipe of character data that accepts.
 \end{itemize}
 
 
-\textbf{3. Aplicando factorización por la izquierda: }
+\textbf{3. Applying left factoring: }
 
-La declaración de variables $DeclNum \rightarrow TypeNum \ ID \ ; \mid TypeNum \ ID \ = \ MathExpr \ ;$ tiene el factor común $TypeNum \ ID$, por lo que podemos expresarla como:
+The variable declarations $DeclNum \rightarrow TypeNum \ ID \ ; \mid TypeNum \ ID \ = \ MathExpr \ ;$ has the common factor $TypeNum \ ID$, so we can express it like:
 
 \begin{align*}
     \text{DeclNum} &\rightarrow \text{TypeNum} \ \text{ID} \ \text{AssignOpNum} \text{;} \\
     \text{AssignOpNum} &\rightarrow \text{MathExpr} \mid \varepsilon
 \end{align*}
 
-También la expresión para operaciones continuas 
+Also the expression for continuous operations 
 \begin{small}
 \[
 \text{MathExpr} \rightarrow \text{MathExpr} \ \text{MathOp} \ \text{MathOperand} \mid \text{MathOperand}
 \]
 \end{small}
-presentaba recursividad por la izquierda, por lo que fue factorizada (recursividad por la derecha) de la siguiente manera:
+
+presents left recursion, so it was factored (right recursion) as follows:
 
 \begin{small}
 \begin{align*}
@@ -258,9 +263,10 @@ presentaba recursividad por la izquierda, por lo que fue factorizada (recursivid
 \end{align*}
 \end{small}
 
-Este procedimiento ayudará a evitar el no determinismo, también con la ayuda de la recursividad por la derecha ya realizada, donde tenemos elementos no terminales en el lado derecho, por lo que esto puede ayudar con las cadenas repetitivas y recursivas que podemos hacer al anidar operaciones o llamadas lógicas.
+This procedure will help to avoid non-determinism, also with the help of the right recursion already done, where we have non-terminal elements on the right side, so this can help with the repetitive and recursive strings that we can make when nesting operations or logical calls.
 
-Finalmente la gramática está definida por las expresiones:
+Finally the gramatic will be defined by the expressions:
+
 \begin{small}
 \begin{align*}
     \text{Stmt} &\rightarrow \text{Stmt} \ \text{StmtList} \mid \varepsilon \\
@@ -303,24 +309,24 @@ Finalmente la gramática está definida por las expresiones:
 
 \newpage
 
-\textbf{4. Condiciones Lógicas (Precedencia por Capas):} 
+\textbf{4. Logical conditions (Layer precedence)} 
 
-Para respetar rigurosamente la jerarquía de las operaciones lógicas, las reglas de producción para las condiciones (\texttt{Cond}) se diseñaron utilizando un enfoque de niveles de prioridad estratificados:
-
+For rigorously respecting the hierarchy of logical operations, the production rules for conditions (\texttt{Cond}) were designed using a stratified priority level approach:
 \begin{itemize}
-    \item \textbf{Nivel de Menor Prioridad (OR):} El análisis inicia en \texttt{Cond}, obligando a evaluar primero las capas inferiores antes de procesar el operador \texttt{||}.
-    \item \textbf{Nivel Intermedio (AND):} A través de \texttt{CondAnd}, los operadores agrupan sus operandos lógicos antes de que la capa superior (OR) pueda procesarlos.
-    \item \textbf{Nivel de Comparaciones (Relacional):} La regla \texttt{CondRel} evalúa las expresiones matemáticas separadas por operadores relacionales ($>$, $<$, $==$).
-    \item \textbf{Nivel de Máxima Prioridad (NOT y Paréntesis):} La regla \texttt{CondUnary} asegura que las negaciones lógicas y las expresiones anidadas entre paréntesis se resuelvan primero.
+    \item \textbf{Nivel de Menor Prioridad (OR):}  The analysis starts in \texttt{Cond}, obligating the evaluation of lower layers before processing the \texttt{||} operator.
+    \item \textbf{Nivel Intermedio (AND):} Through \texttt{CondAnd}, the operators group their logical operands before the upper layer (OR) can process them.
+    \item \textbf{Nivel de Comparaciones (Relacional):} The rule \texttt{CondRel} evaluates the mathematical expressions separated by relational operators ($>$, $<$, $==$).
+    \item \textbf{Nivel de Máxima Prioridad (NOT y Paréntesis):} The rule \texttt{CondUnary} ensures that logical negations and nested expressions between parentheses are resolved first.
 \end{itemize}
 
 \newpage
-\subsubsection*{5. Autómata Finito Determinista (DFA) del Analizador Sintáctico Predictivo}
+\subsubsection*{5.Deterministic Finite Automaton (DFA) of the Predictive Syntax Analyzer}
 
-Se presenta el autómata de estados finitos determinista que modela el comportamiento del analizador sintáctico predictivo (\textit{parser top-down}) basado en la gramática libre de contexto definida anteriormente. El estado $q_0$ es el estado inicial y de aceptación (representando la producción $\text{Stmt} \rightarrow \varepsilon$). Cada camino desde $q_0$ corresponde al reconocimiento de un tipo de instrucción; al completarla, el autómata retorna a $q_0$ para procesar la siguiente instrucción.
+It presents the deterministic finite automaton that models the behavior of the predictive top-down syntax analyzer based on the context-free grammar defined above. The state $q_0$ is the initial and accepting state (representing the production $\text{Stmt} \rightarrow \varepsilon$). Each path from $q_0$ corresponds to the recognition of a type of instruction; upon completion, the automaton returns to $q_0$ to process the next instruction.
+
 
 \vspace{0.3cm}
-\textbf{Tabla de transiciones por producción:}
+\textbf{Table of Transitions for production:}
 
 \vspace{0.2cm}
 \renewcommand{\arraystretch}{1.15}
@@ -328,10 +334,10 @@ Se presenta el autómata de estados finitos determinista que modela el comportam
 \begin{small}
 \begin{longtable}{|>{\bfseries}l|l|l|l|}
 \hline
-\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\rowcolor{gray!20} Production & Source State & Symbol & Destination State \\ \hline
 \endfirsthead
 \hline
-\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\rowcolor{gray!20} Production & Source State & Symbol & Destination State \\ \hline
 \endhead
 \hline
 \endfoot
@@ -610,8 +616,8 @@ Se presenta el autómata de estados finitos determinista que modela el comportam
 % Leyenda
 % ============================================================
 \node[anchor=north west, font=\scriptsize, align=left] at (-0.5, -13) {%
-\textbf{Leyenda:} Las flechas punteadas (\,- - -\,) indican transiciones de retorno al estado $q_0$.\\
-Las etiquetas en \textit{cursiva gris} identifican la producción correspondiente.};
+\textbf{Leyenda:} The point arrows (\,- - -\,) indicate the return to state$q_0$.\\
+The labels in \textit{grey cursive} identify the corresponding production.};
 
 \end{tikzpicture}%
 }
@@ -621,107 +627,107 @@ Las etiquetas en \textit{cursiva gris} identifican la producción correspondient
 
 \newpage
 
-\textbf{Descripción formal del autómata:}
+\textbf{Formal Description of the Automaton:}
 
 \vspace{0.3cm}
 
-El autómata finito determinista se define formalmente como la 5-tupla $M = (Q, \Sigma, \delta, q_0, F)$ donde:
+The deterministic finite automaton is formally defined as the 5-tuple $M = (Q, \Sigma, \delta, q_0, F)$ where:
 
 \begin{itemize}
-    \item $Q = \{q_0, q_1, q_2, \ldots, q_{46}\}$ \quad (47 estados)
-    \item $\Sigma$ es el conjunto de símbolos de entrada (terminales y no terminales de la gramática)
-    \item $\delta : Q \times \Sigma \rightarrow Q$ es la función de transición definida a continuación
-    \item $q_0$ es el estado inicial
-    \item $F = \{q_0\}$ es el conjunto de estados de aceptación
+    \item $Q = \{q_0, q_1, q_2, \ldots, q_{46}\}$ \quad (47 states)
+    \item $\Sigma$ is the set of input symbols (terminals and non-terminals of the grammar)
+    \item $\delta : Q \times \Sigma \rightarrow Q$ is the transition function defined below
+    \item $q_0$ is the initial state
+    \item $F = \{q_0\}$ is the set of accepting states
 \end{itemize}
 
 
 
 \vspace{0.3cm}
-\textbf{Observaciones sobre el autómata:}
+\textbf{Observations about the automaton:}
 
 \begin{enumerate}
-    \item \textbf{Estado $q_0$ como estado inicial y de aceptación:} El estado $q_0$ cumple ambos roles porque la producción $\text{Stmt} \rightarrow \varepsilon$ permite aceptar la cadena vacía (un programa sin instrucciones). Después de reconocer completamente una instrucción, el autómata siempre regresa a $q_0$ para iniciar el reconocimiento de la siguiente.
+    \item \textbf{State $q_0$ as initial and accepting state:} The state $q_0$ fulfills both roles because the production $\text{Stmt} \rightarrow \varepsilon$ allows accepting the empty string (a program without statements). After completely recognizing a statement, the automaton always returns to $q_0$ to initiate the recognition of the next one.
 
-    \item \textbf{Determinismo por token de anticipación (\textit{lookahead}):} Desde $q_0$, el primer token de la entrada determina unívocamente cuál camino seguir:
+    \item \textbf{Determinism by anticipation token (\textit{lookahead}):} From $q_0$, the first token of the input determines unequivocally the path to follow:
     \begin{itemize}
-        \item \texttt{int}, \texttt{float}, \texttt{double} $\rightarrow$ DeclNum (estado $q_1$)
-        \item \texttt{char} $\rightarrow$ DeclChar (estado $q_5$)
-        \item \texttt{ID} $\rightarrow$ AssignStmt o UnaryStmt posfijo (estado $q_9$)
-        \item \texttt{++}, \texttt{-{}-} $\rightarrow$ UnaryStmt prefijo (estado $q_{12}$)
-        \item \texttt{if} $\rightarrow$ IfStmt (estado $q_{14}$)
-        \item \texttt{while} $\rightarrow$ WhileStmt (estado $q_{20}$)
-        \item \texttt{for} $\rightarrow$ ForStmt (estado $q_{26}$)
-        \item \texttt{printf} $\rightarrow$ PrintStmt (estado $q_{36}$)
-        \item \texttt{scanf} $\rightarrow$ ScanStmt (estado $q_{40}$)
+        \item \texttt{int}, \texttt{float}, \texttt{double} $\rightarrow$ DeclNum (state $q_1$)
+        \item \texttt{char} $\rightarrow$ DeclChar (state $q_5$)
+        \item \texttt{ID} $\rightarrow$ AssignStmt o UnaryStmt posfijo (state $q_9$)
+        \item \texttt{++}, \texttt{-{}-} $\rightarrow$ UnaryStmt prefijo (state $q_{12}$)
+        \item \texttt{if} $\rightarrow$ IfStmt (state $q_{14}$)
+        \item \texttt{while} $\rightarrow$ WhileStmt (state $q_{20}$)
+        \item \texttt{for} $\rightarrow$ ForStmt (state $q_{26}$)
+        \item \texttt{printf} $\rightarrow$ PrintStmt (state $q_{36}$)
+        \item \texttt{scanf} $\rightarrow$ ScanStmt (state $q_{40}$)
     \end{itemize}
 
-    \item \textbf{Transiciones opcionales ($\varepsilon$):} Los estados $q_2$ y $q_6$ poseen dos transiciones por \texttt{;}: una directa a $q_0$ (cuando la variable se declara sin inicializar, es decir $\text{AssignOpNum} \rightarrow \varepsilon$) y otra que pasa por la asignación antes de llegar al \texttt{;} final.
+    \item \textbf{Optional transitions($\varepsilon$):} The states $q_2$ y $q_6$ posses two transitions for \texttt{;}: uone direct to $q_0$ (when the variable is declared without initialization, it means $\text{AssignOpNum} \rightarrow \varepsilon$) and another that passes through the assignment before reaching the final \texttt{;}.
 
-    \item \textbf{Ambigüedad resuelta en $q_9$:} Cuando el primer token es \texttt{ID}, el autómata transita a $q_9$. Desde ahí, el segundo token resuelve la ambigüedad:
+    \item \textbf{Ambiguety reolved in $q_9$:} When the first token is \texttt{ID}, the automaton transitions to $q_9$. From there, the second token resolves the ambiguity:
     \begin{itemize}
-        \item Si es un \textit{AssignExprOp} (\texttt{=}, \texttt{+=}, \texttt{-=}, \texttt{/=}) $\rightarrow$ se sigue el camino de AssignStmt.
-        \item Si es un \textit{IncDecOp} (\texttt{++}, \texttt{-{}-}) $\rightarrow$ se sigue el camino de UnaryStmt posfijo.
+        \item If it is an \textit{AssignExprOp} (\texttt{=}, \texttt{+=}, \texttt{-=}, \texttt{/=}) $\rightarrow$ the path of AssignStmt is followed.
+        \item If it is an \textit{IncDecOp} (\texttt{++}, \texttt{-{}-}) $\rightarrow$ the path of UnaryStmt posfijo is followed.
     \end{itemize}
 
-    \item \textbf{Símbolos no terminales como transiciones:} Las etiquetas como \textit{Cond}, \textit{StmtList}, \textit{MathExpr}, \textit{PrintArgs}, \textit{ForInit}, \textit{ForCond} y \textit{ForStep} representan llamadas recursivas al parser predictivo, donde cada no terminal se expande según sus propias reglas de producción definidas en la gramática.
+    \item \textbf{Non-terminal symbols as transitions:} The labels like \textit{Cond}, \textit{StmtList}, \textit{MathExpr}, \textit{PrintArgs}, \textit{ForInit}, \textit{ForCond} y \textit{ForStep} represent recursive calls to the predictive parser, where each non-terminal expands according to its own production rules defined in the grammar.
 \end{enumerate}
 
-\subsection{Entrada/Salida y Ejecución}
+\subsection{Input/Output and execution}
 
-El analizador léxico desarrollado soporta dos modos de operación para entradas en lenguaje C, lectura desde archivo y lectura desde teclado.
+The lexical analyzer developed supports two modes of operation for C language inputs: reading from a file and reading from the keyboard.
 
 \begin{enumerate}
-    \item \textbf{Lectura desde archivo.}  
-    En este modo, el usuario debe colocar el archivo en la carpeta inputs y el sistema lo lee usando codificación UTF-8 y posteriormente procesa el contenido línea por línea y al final del análisis léxico, los resultados pueden ser exportados hacia la carpeta outputs.
+    \item \textbf{Read from file.}  
+    In this mode, the user must place the file in the inputs folder and the system reads it using UTF-8 encoding and subsequently processes the content line by line. At the end of the lexical analysis, the results can be exported to the outputs folder.
 
-    \item \textbf{Lectura desde teclado.}  
-    El analizador permite ingresar código fuente directamente desde la terminal. La captura finaliza cuando el usuario introduce el símbolo terminal \texttt{\$}, el cual actúa como delimitador de fin de entrada.  
+    \item \textbf{Read from keyboard.}  
+    The analyzer allows entering source code directly from the terminal. The capture ends when the user inputs the terminal symbol \texttt{\$}, which acts as a delimiter for the end of input.  
  \end{enumerate}
 
-Durante la ejecución, el sistema realiza las siguientes operaciones principales:
+During execution, the system performs the following main operations:
 
 \begin{itemize}
-    \item Tokenización del código fuente mediante el lexer de C proporcionado por la biblioteca \textit{Pygments}.
-    \item Clasificación de cada token conforme a las categorías definidas en el curso (Keyword, Identifier, Operator, Punctuator, Constant y Literal).
-    \item Eliminación de tokens irrelevantes como espacios en blanco o saltos de línea que no aportan información sintáctica.
-    \item Agrupación y conteo total de tokens por categoría.
-    \item Visualización opcional del código fuente con resaltado de tokens en colores y exportación de resultados a un archivo de texto.
+    \item Tokenization of the source code using the C lexer provided by the \textit{Pygments} library.
+    \item Classification of each token according to the categories defined in the course (Keyword, Identifier, Operator, Punctuator, Constant and Literal).
+    \item Removal of irrelevant tokens such as whitespace or line breaks that do not provide syntactic information.
+    \item Grouping and total counting of tokens by category.
+    \item Optional visualization of the source code with token highlighting in colors and exportation of results to a text file.
 \end{itemize}
 
-Cabe mencionar que el caso particular del carácter \texttt{\&} utilizado en la función \texttt{scanf()}, así como ciertos delimitadores como paréntesis, llaves, comas y punto y coma se trataron explícitamente como punctuators debido a que la biblioteca utilizada no los categoriza de forma consistente.
+It is worth mentioning that the particular case of the character \texttt{\&} used in the \texttt{scanf()} function, as well as certain delimiters such as parentheses, braces, commas and semicolons were explicitly treated as punctuators because the library used does not categorize them consistently.
 
-\subsection{Relación con la CFG propuesta}
+\subsection{Relation with the propose CFG}
 
-El diseño del analizador léxico se realizó tomando como referencia la gramática libre de contexto definida para el lenguaje C reducido considerado en este proyecto.  
-Nuestra CFG contempla instrucciones como declaraciones de variables numéricas y de carácter, asignaciones, estructuras de control (\texttt{if}, \texttt{while}, \texttt{for}), operaciones unarias de incremento y decremento, así como llamadas a funciones de entrada/salida (\texttt{printf} y \texttt{scanf}) \textit{\cite{cfglexer}}.
+The design of the lexical analyzer was carried out taking as reference the context-free grammar defined for the reduced C language considered in this project.
+Our CFG includes instructions such as declarations of numeric and character variables, assignments, control structures (\texttt{if}, \texttt{while}, \texttt{for}), unary increment and decrement operations, as well as calls to input/output functions (\texttt{printf} and \texttt{scanf}) \textit{\cite{cfglexer}}. 
 
-También se definieron reglas de producción para expresiones matemáticas y condiciones lógicas respetando la precedencia de operadores mediante un enfoque de derivación por niveles, donde los operadores lógicos OR presentan la menor prioridad, seguidos por AND, operadores relacionales y finalmente operadores unarios como la negación lógica y el uso de paréntesis.
+Also we defined production rules for mathematical expressions and logical conditions respecting operator precedence through a layered derivation approach, where logical OR operators have the lowest priority, followed by AND, relational operators and finally unary operators such as logical negation and the use of parentheses.
 
-\subsection{Pruebas realizadas}
-Para validar nuestro analizador léxico, se propusieron un par de pruebas utilizando fragmentos de código en lenguaje C que incluyen declaraciones, expresiones aritméticas, llamadas a funciones de entrada/salida y estructuras de control contempladas en la CFG propuesta.
+\subsection{Tests realized}
+
+In order to validate our lexical analyzer, a couple of tests were proposed using fragments of code in the C language that include declarations, arithmetic expressions, calls to input/output functions and control structures contemplated in the proposed CFG.
 \begin{itemize}
-    \item \textbf{Código 1: Declaraciones y expresiones aritméticas}  
+    \item \textbf{Code 1: Statements and arithmetic expressions}  
 
-    En esta prueba se analizó un programa que incluye declaraciones de variables numéricas, una asignación con expresión aritmética y una llamada a la función \texttt{printf()}. El analizador léxico identificó correctamente palabras clave, identificadores, operadores de asignación y operadores aritméticos, así como constantes numéricas y delimitadores del lenguaje.
+    In this test, a program was analyzed that includes declarations of numeric variables, an assignment with an arithmetic expression and a call to the \texttt{printf()} function. The lexical analyzer correctly identified keywords, identifiers, assignment operators and arithmetic operators, as well as numeric constants and language delimiters.
+    
+    Similarly, the proper recognition of the string literal used in the output function was verified, which was grouped as a single token. The result of the analysis made it possible to obtain the total count of tokens classified by category, validating the correct tokenization of arithmetic expressions and print statements.
+    \item \textbf{Code 2: Data input and iterative structure}  
 
-    De igual forma, se verificó el reconocimiento adecuado del literal de cadena utilizado en la función de salida, el cual fue agrupado como un único token. El resultado del análisis permitió obtener el conteo total de tokens clasificados por categoría, validando la correcta tokenización de expresiones aritméticas y sentencias de impresión.
+    In this test, a program was evaluated that performs data reading using \texttt{scanf()} and employs an iterative structure \texttt{for}. During the analysis, the associated keywords for the loop, relational and increment operators were correctly recognized, as well as the corresponding delimiters.
 
-    \item \textbf{Código 2: Entrada de datos y estructura iterativa}  
-
-    En esta prueba se evaluó un programa que realiza lectura de datos mediante \texttt{scanf()} y emplea una estructura iterativa \texttt{for}. Durante el análisis se reconocieron correctamente las palabras clave asociadas al ciclo, los operadores relacionales y de incremento, así como los delimitadores correspondientes.
-
-    También se verificó la clasificación del símbolo especial \texttt{\&} utilizado para la lectura por referencia y la correcta identificación del literal de cadena dentro de la función \texttt{printf()}. Los resultados confirmaron que el analizador puede procesar adecuadamente instrucciones iterativas y llamadas a funciones de entrada/salida, generando la tabla y el conteo agrupado de tokens.
+    Additionally, the classification of the special symbol \texttt{\&} used for reference reading and the correct identification of the string literal within the \texttt{printf()} function were verified. The results confirmed that the lexical analyzer can adequately process iterative statements and calls to input/output functions, generating the table and grouped count of tokens.
 \end{itemize}
 
 
 
-\section{Resultados}
+\section{Results}
 
 Mediante capturas de pantalla y una breve descripción seguida de la captura se presentan los resultados finales de su aplicación.
 
 
-\section{Conclusiones}
+\section{Conclusions}
 
 Se presenta un análisis de los resultados obtenidos, donde se destaca la importancia de la aplicación de los conceptos teóricos para resolver el problema. Es importante resaltar lo siguiente:
 
