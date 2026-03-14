@@ -19,6 +19,8 @@
 \usepackage{caption, subcaption} 
 \usepackage{graphicx}
 \usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
 \usepackage{tikz}
 \usepackage{imakeidx}
 \usepackage{xcolor}
@@ -312,8 +314,355 @@ Para respetar rigurosamente la jerarquía de las operaciones lógicas, las regla
     \item \textbf{Nivel de Máxima Prioridad (NOT y Paréntesis):} La regla \texttt{CondUnary} asegura que las negaciones lógicas y las expresiones anidadas entre paréntesis se resuelvan primero.
 \end{itemize}
 
+\newpage
+\subsubsection*{5. Autómata Finito Determinista (DFA) del Analizador Sintáctico Predictivo}
 
+A continuación se presenta el autómata de estados finitos determinista que modela el comportamiento del analizador sintáctico predictivo (\textit{parser top-down}) basado en la gramática libre de contexto definida anteriormente. El estado $q_0$ es el estado inicial y de aceptación (representando la producción $\text{Stmt} \rightarrow \varepsilon$). Cada camino desde $q_0$ corresponde al reconocimiento de un tipo de instrucción; al completarla, el autómata retorna a $q_0$ para procesar la siguiente instrucción.
 
+\begin{figure}[h!]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=stealth, shorten >=1pt, auto,
+    every state/.style={minimum size=7mm, inner sep=0pt, font=\scriptsize},
+    every edge/.style={draw, ->, >=stealth, font=\scriptsize},
+    initial text={},
+    ret/.style={dashed, bend left}
+]
+
+% ============================================================
+% Estado inicial / de aceptación
+% ============================================================
+\node[state, initial, accepting] (q0) at (0, 0) {$q_0$};
+
+% ============================================================
+% DeclNum:  TypeNum  ID  [= MathExpr]  ;
+% ============================================================
+\node[state] (q1)  at (3, 7)    {$q_1$};
+\node[state] (q2)  at (6, 7)    {$q_2$};
+\node[state] (q3)  at (9, 7)    {$q_3$};
+\node[state] (q4)  at (12, 7)   {$q_4$};
+
+\path (q0) edge node[above left]  {\texttt{TypeNum}} (q1)
+      (q1) edge node               {\texttt{ID}}      (q2)
+      (q2) edge node               {\texttt{=}}       (q3)
+      (q3) edge node               {MathExpr}         (q4)
+      (q4) edge [ret, out=155, in=75]  node[above]    {\texttt{;}} (q0)
+      (q2) edge [dashed, out=195, in=80] node[left]   {\texttt{;}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (13, 7) {DeclNum};
+
+% ============================================================
+% DeclChar:  char  ID  [= VALUE_CHAR]  ;
+% ============================================================
+\node[state] (q5)  at (3, 5.5)  {$q_5$};
+\node[state] (q6)  at (6, 5.5)  {$q_6$};
+\node[state] (q7)  at (9, 5.5)  {$q_7$};
+\node[state] (q8)  at (12, 5.5) {$q_8$};
+
+\path (q0) edge node[above left]  {\texttt{char}}        (q5)
+      (q5) edge node               {\texttt{ID}}          (q6)
+      (q6) edge node               {\texttt{=}}           (q7)
+      (q7) edge node               {VALUE\_CHAR}          (q8)
+      (q8) edge [ret, out=160, in=65]  node[above]       {\texttt{;}} (q0)
+      (q6) edge [dashed, out=200, in=70] node[left]      {\texttt{;}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (13, 5.5) {DeclChar};
+
+% ============================================================
+% AssignStmt:  ID  AssignExprOp  MathExpr  ;
+% ============================================================
+\node[state] (q9)  at (3, 4)    {$q_9$};
+\node[state] (q10) at (7, 4)    {$q_{10}$};
+\node[state] (q11) at (11, 4)   {$q_{11}$};
+
+\path (q0) edge node               {\texttt{ID}}          (q9)
+      (q9) edge node               {AssignExprOp}         (q10)
+      (q10) edge node              {MathExpr}             (q11)
+      (q11) edge [ret, out=165, in=50] node[above]       {\texttt{;}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (13, 4) {AssignStmt};
+
+% ============================================================
+% UnaryStmt prefijo:  IncDecOp  ID  ;
+% ============================================================
+\node[state] (q12) at (3, 2.5)  {$q_{12}$};
+\node[state] (q13) at (7, 2.5)  {$q_{13}$};
+
+\path (q0) edge node[below left]  {\texttt{IncDecOp}} (q12)
+      (q12) edge node             {\texttt{ID}}        (q13)
+      (q13) edge [ret, out=175, in=-5] node[above]    {\texttt{;}} (q0);
+
+% UnaryStmt posfijo (ID IncDecOp ;): desde q9
+\path (q9) edge node[right]       {\texttt{IncDecOp}} (q13);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (13, 2.5) {UnaryStmt};
+
+% ============================================================
+% IfStmt:  if ( Cond ) \{ StmtList \}
+% ============================================================
+\node[state] (q14) at (3, -0.5)   {$q_{14}$};
+\node[state] (q15) at (5, -0.5)   {$q_{15}$};
+\node[state] (q16) at (7, -0.5)   {$q_{16}$};
+\node[state] (q17) at (9, -0.5)   {$q_{17}$};
+\node[state] (q18) at (11, -0.5)  {$q_{18}$};
+\node[state] (q19) at (13, -0.5)  {$q_{19}$};
+
+\path (q0)  edge node[below left]  {\texttt{if}}      (q14)
+      (q14) edge node               {\texttt{(}}       (q15)
+      (q15) edge node               {Cond}             (q16)
+      (q16) edge node               {\texttt{)}}       (q17)
+      (q17) edge node               {\texttt{\{}}      (q18)
+      (q18) edge node               {StmtList}         (q19)
+      (q19) edge [dashed, out=200, in=-20] node[below] {\texttt{\}}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (14, -0.5) {IfStmt};
+
+% ============================================================
+% WhileStmt:  while ( Cond ) \{ StmtList \}
+% ============================================================
+\node[state] (q20) at (3, -2.5)   {$q_{20}$};
+\node[state] (q21) at (5, -2.5)   {$q_{21}$};
+\node[state] (q22) at (7, -2.5)   {$q_{22}$};
+\node[state] (q23) at (9, -2.5)   {$q_{23}$};
+\node[state] (q24) at (11, -2.5)  {$q_{24}$};
+\node[state] (q25) at (13, -2.5)  {$q_{25}$};
+
+\path (q0)  edge node[below left]  {\texttt{while}}   (q20)
+      (q20) edge node               {\texttt{(}}       (q21)
+      (q21) edge node               {Cond}             (q22)
+      (q22) edge node               {\texttt{)}}       (q23)
+      (q23) edge node               {\texttt{\{}}      (q24)
+      (q24) edge node               {StmtList}         (q25)
+      (q25) edge [dashed, out=210, in=-30] node[below] {\texttt{\}}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (14, -2.5) {WhileStmt};
+
+% ============================================================
+% ForStmt:  for ( ForInit ; ForCond ; ForStep ) \{ StmtList \}
+% (dos filas para evitar desbordamiento horizontal)
+% ============================================================
+\node[state] (q26) at (3, -4.5)     {$q_{26}$};
+\node[state] (q27) at (5, -4.5)     {$q_{27}$};
+\node[state] (q28) at (7.5, -4.5)   {$q_{28}$};
+\node[state] (q29) at (10, -4.5)    {$q_{29}$};
+\node[state] (q30) at (12.5, -4.5)  {$q_{30}$};
+
+\node[state] (q31) at (12.5, -6)    {$q_{31}$};
+\node[state] (q32) at (10, -6)      {$q_{32}$};
+\node[state] (q33) at (7.5, -6)     {$q_{33}$};
+\node[state] (q34) at (5, -6)       {$q_{34}$};
+\node[state] (q35) at (3, -6)       {$q_{35}$};
+
+\path (q0)  edge node[below left]       {\texttt{for}}     (q26)
+      (q26) edge node                    {\texttt{(}}       (q27)
+      (q27) edge node                    {ForInit}          (q28)
+      (q28) edge node                    {\texttt{;}}       (q29)
+      (q29) edge node                    {ForCond}          (q30)
+      (q30) edge node[right]             {\texttt{;}}       (q31)
+      (q31) edge node                    {ForStep}          (q32)
+      (q32) edge node                    {\texttt{)}}       (q33)
+      (q33) edge node                    {\texttt{\{}}      (q34)
+      (q34) edge node                    {StmtList}         (q35)
+      (q35) edge [dashed, out=150, in=-60] node[left]      {\texttt{\}}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (14, -4.5) {ForStmt};
+
+% ============================================================
+% PrintStmt:  printf ( PrintArgs ) ;
+% ============================================================
+\node[state] (q36) at (3, -8)     {$q_{36}$};
+\node[state] (q37) at (6, -8)     {$q_{37}$};
+\node[state] (q38) at (9, -8)     {$q_{38}$};
+\node[state] (q39) at (12, -8)    {$q_{39}$};
+
+\path (q0)  edge node[below left]  {\texttt{printf}}  (q36)
+      (q36) edge node               {\texttt{(}}       (q37)
+      (q37) edge node               {PrintArgs}        (q38)
+      (q38) edge node               {\texttt{)}}       (q39)
+      (q39) edge [dashed, out=170, in=-50] node[left] {\texttt{;}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (13, -8) {PrintStmt};
+
+% ============================================================
+% ScanStmt:  scanf ( TEXT_STRING , \& ID ) ;
+% ============================================================
+\node[state] (q40) at (3, -10)      {$q_{40}$};
+\node[state] (q41) at (5, -10)      {$q_{41}$};
+\node[state] (q42) at (7.5, -10)    {$q_{42}$};
+\node[state] (q43) at (9.5, -10)    {$q_{43}$};
+\node[state] (q44) at (11.5, -10)   {$q_{44}$};
+\node[state] (q45) at (13.5, -10)   {$q_{45}$};
+\node[state] (q46) at (13.5, -11.5) {$q_{46}$};
+
+\path (q0)  edge node[below left]   {\texttt{scanf}}       (q40)
+      (q40) edge node                {\texttt{(}}           (q41)
+      (q41) edge node                {TEXT\_STRING}          (q42)
+      (q42) edge node                {\texttt{,}}           (q43)
+      (q43) edge node                {\texttt{\&}}          (q44)
+      (q44) edge node                {\texttt{ID}}          (q45)
+      (q45) edge node[right]         {\texttt{)}}           (q46)
+      (q46) edge [dashed, out=180, in=-80] node[left]      {\texttt{;}} (q0);
+
+\node[anchor=west, font=\scriptsize\itshape, gray] at (14.5, -10) {ScanStmt};
+
+% ============================================================
+% Leyenda
+% ============================================================
+\node[anchor=north west, font=\scriptsize, align=left] at (-0.5, -13) {%
+\textbf{Leyenda:} Las flechas punteadas (\,- - -\,) indican transiciones de retorno al estado $q_0$.\\
+Las etiquetas en \textit{cursiva gris} identifican la producción correspondiente.};
+
+\end{tikzpicture}%
+}
+\caption{DFA del analizador sintáctico predictivo para la gramática propuesta.}
+\label{fig:dfa_parser}
+\end{figure}
+
+\newpage
+
+\textbf{Descripción formal del autómata:}
+
+\vspace{0.3cm}
+
+El autómata finito determinista se define formalmente como la 5-tupla $M = (Q, \Sigma, \delta, q_0, F)$ donde:
+
+\begin{itemize}
+    \item $Q = \{q_0, q_1, q_2, \ldots, q_{46}\}$ \quad (47 estados)
+    \item $\Sigma$ es el conjunto de símbolos de entrada (terminales y no terminales de la gramática)
+    \item $\delta : Q \times \Sigma \rightarrow Q$ es la función de transición definida a continuación
+    \item $q_0$ es el estado inicial
+    \item $F = \{q_0\}$ es el conjunto de estados de aceptación
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Tabla de transiciones por producción:}
+
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{small}
+\begin{longtable}{|>{\bfseries}l|l|l|l|}
+\hline
+\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\endfirsthead
+\hline
+\rowcolor{gray!20} Producción & Estado origen & Símbolo & Estado destino \\ \hline
+\endhead
+\hline
+\endfoot
+
+\multirow{6}{*}{DeclNum}
+    & $q_0$  & TypeNum   & $q_1$  \\ \cline{2-4}
+    & $q_1$  & ID        & $q_2$  \\ \cline{2-4}
+    & $q_2$  & \texttt{=}        & $q_3$  \\ \cline{2-4}
+    & $q_3$  & MathExpr  & $q_4$  \\ \cline{2-4}
+    & $q_4$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
+    & $q_2$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
+
+\multirow{6}{*}{DeclChar}
+    & $q_0$  & \texttt{char}     & $q_5$  \\ \cline{2-4}
+    & $q_5$  & ID        & $q_6$  \\ \cline{2-4}
+    & $q_6$  & \texttt{=}        & $q_7$  \\ \cline{2-4}
+    & $q_7$  & VALUE\_CHAR & $q_8$ \\ \cline{2-4}
+    & $q_8$  & \texttt{;}        & $q_0$  \\ \cline{2-4}
+    & $q_6$  & \texttt{;} ($\varepsilon$) & $q_0$  \\ \hline
+
+\multirow{4}{*}{AssignStmt}
+    & $q_0$   & ID             & $q_9$   \\ \cline{2-4}
+    & $q_9$   & AssignExprOp   & $q_{10}$ \\ \cline{2-4}
+    & $q_{10}$ & MathExpr      & $q_{11}$ \\ \cline{2-4}
+    & $q_{11}$ & \texttt{;}    & $q_0$   \\ \hline
+
+\multirow{3}{*}{UnaryStmt (prefijo)}
+    & $q_0$   & IncDecOp   & $q_{12}$ \\ \cline{2-4}
+    & $q_{12}$ & ID         & $q_{13}$ \\ \cline{2-4}
+    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
+
+\multirow{2}{*}{UnaryStmt (posfijo)}
+    & $q_9$   & IncDecOp   & $q_{13}$ \\ \cline{2-4}
+    & $q_{13}$ & \texttt{;} & $q_0$   \\ \hline
+
+\multirow{7}{*}{IfStmt}
+    & $q_0$   & \texttt{if}        & $q_{14}$ \\ \cline{2-4}
+    & $q_{14}$ & \texttt{(}         & $q_{15}$ \\ \cline{2-4}
+    & $q_{15}$ & Cond               & $q_{16}$ \\ \cline{2-4}
+    & $q_{16}$ & \texttt{)}         & $q_{17}$ \\ \cline{2-4}
+    & $q_{17}$ & \texttt{\{}        & $q_{18}$ \\ \cline{2-4}
+    & $q_{18}$ & StmtList           & $q_{19}$ \\ \cline{2-4}
+    & $q_{19}$ & \texttt{\}}        & $q_0$   \\ \hline
+
+\multirow{7}{*}{WhileStmt}
+    & $q_0$   & \texttt{while}     & $q_{20}$ \\ \cline{2-4}
+    & $q_{20}$ & \texttt{(}         & $q_{21}$ \\ \cline{2-4}
+    & $q_{21}$ & Cond               & $q_{22}$ \\ \cline{2-4}
+    & $q_{22}$ & \texttt{)}         & $q_{23}$ \\ \cline{2-4}
+    & $q_{23}$ & \texttt{\{}        & $q_{24}$ \\ \cline{2-4}
+    & $q_{24}$ & StmtList           & $q_{25}$ \\ \cline{2-4}
+    & $q_{25}$ & \texttt{\}}        & $q_0$   \\ \hline
+
+\multirow{11}{*}{ForStmt}
+    & $q_0$   & \texttt{for}       & $q_{26}$ \\ \cline{2-4}
+    & $q_{26}$ & \texttt{(}         & $q_{27}$ \\ \cline{2-4}
+    & $q_{27}$ & ForInit            & $q_{28}$ \\ \cline{2-4}
+    & $q_{28}$ & \texttt{;}         & $q_{29}$ \\ \cline{2-4}
+    & $q_{29}$ & ForCond            & $q_{30}$ \\ \cline{2-4}
+    & $q_{30}$ & \texttt{;}         & $q_{31}$ \\ \cline{2-4}
+    & $q_{31}$ & ForStep            & $q_{32}$ \\ \cline{2-4}
+    & $q_{32}$ & \texttt{)}         & $q_{33}$ \\ \cline{2-4}
+    & $q_{33}$ & \texttt{\{}        & $q_{34}$ \\ \cline{2-4}
+    & $q_{34}$ & StmtList           & $q_{35}$ \\ \cline{2-4}
+    & $q_{35}$ & \texttt{\}}        & $q_0$   \\ \hline
+
+\multirow{5}{*}{PrintStmt}
+    & $q_0$   & \texttt{printf}    & $q_{36}$ \\ \cline{2-4}
+    & $q_{36}$ & \texttt{(}         & $q_{37}$ \\ \cline{2-4}
+    & $q_{37}$ & PrintArgs          & $q_{38}$ \\ \cline{2-4}
+    & $q_{38}$ & \texttt{)}         & $q_{39}$ \\ \cline{2-4}
+    & $q_{39}$ & \texttt{;}         & $q_0$   \\ \hline
+
+\multirow{8}{*}{ScanStmt}
+    & $q_0$   & \texttt{scanf}     & $q_{40}$ \\ \cline{2-4}
+    & $q_{40}$ & \texttt{(}         & $q_{41}$ \\ \cline{2-4}
+    & $q_{41}$ & TEXT\_STRING        & $q_{42}$ \\ \cline{2-4}
+    & $q_{42}$ & \texttt{,}         & $q_{43}$ \\ \cline{2-4}
+    & $q_{43}$ & \texttt{\&}        & $q_{44}$ \\ \cline{2-4}
+    & $q_{44}$ & ID                 & $q_{45}$ \\ \cline{2-4}
+    & $q_{45}$ & \texttt{)}         & $q_{46}$ \\ \cline{2-4}
+    & $q_{46}$ & \texttt{;}         & $q_0$   \\ \hline
+
+\end{longtable}
+\end{small}
+
+\vspace{0.3cm}
+\textbf{Observaciones sobre el autómata:}
+
+\begin{enumerate}
+    \item \textbf{Estado $q_0$ como estado inicial y de aceptación:} El estado $q_0$ cumple ambos roles porque la producción $\text{Stmt} \rightarrow \varepsilon$ permite aceptar la cadena vacía (un programa sin instrucciones). Después de reconocer completamente una instrucción, el autómata siempre regresa a $q_0$ para iniciar el reconocimiento de la siguiente.
+
+    \item \textbf{Determinismo por token de anticipación (\textit{lookahead}):} Desde $q_0$, el primer token de la entrada determina unívocamente cuál camino seguir:
+    \begin{itemize}
+        \item \texttt{int}, \texttt{float}, \texttt{double} $\rightarrow$ DeclNum (estado $q_1$)
+        \item \texttt{char} $\rightarrow$ DeclChar (estado $q_5$)
+        \item \texttt{ID} $\rightarrow$ AssignStmt o UnaryStmt posfijo (estado $q_9$)
+        \item \texttt{++}, \texttt{-{}-} $\rightarrow$ UnaryStmt prefijo (estado $q_{12}$)
+        \item \texttt{if} $\rightarrow$ IfStmt (estado $q_{14}$)
+        \item \texttt{while} $\rightarrow$ WhileStmt (estado $q_{20}$)
+        \item \texttt{for} $\rightarrow$ ForStmt (estado $q_{26}$)
+        \item \texttt{printf} $\rightarrow$ PrintStmt (estado $q_{36}$)
+        \item \texttt{scanf} $\rightarrow$ ScanStmt (estado $q_{40}$)
+    \end{itemize}
+
+    \item \textbf{Transiciones opcionales ($\varepsilon$):} Los estados $q_2$ y $q_6$ poseen dos transiciones por \texttt{;}: una directa a $q_0$ (cuando la variable se declara sin inicializar, es decir $\text{AssignOpNum} \rightarrow \varepsilon$) y otra que pasa por la asignación antes de llegar al \texttt{;} final.
+
+    \item \textbf{Ambigüedad resuelta en $q_9$:} Cuando el primer token es \texttt{ID}, el autómata transita a $q_9$. Desde ahí, el segundo token resuelve la ambigüedad:
+    \begin{itemize}
+        \item Si es un \textit{AssignExprOp} (\texttt{=}, \texttt{+=}, \texttt{-=}, \texttt{/=}) $\rightarrow$ se sigue el camino de AssignStmt.
+        \item Si es un \textit{IncDecOp} (\texttt{++}, \texttt{-{}-}) $\rightarrow$ se sigue el camino de UnaryStmt posfijo.
+    \end{itemize}
+
+    \item \textbf{Símbolos no terminales como transiciones:} Las etiquetas como \textit{Cond}, \textit{StmtList}, \textit{MathExpr}, \textit{PrintArgs}, \textit{ForInit}, \textit{ForCond} y \textit{ForStep} representan llamadas recursivas al parser predictivo, donde cada no terminal se expande según sus propias reglas de producción definidas en la gramática.
+\end{enumerate}
 
 \subsection{Entrada/Salida y Ejecución}
 
