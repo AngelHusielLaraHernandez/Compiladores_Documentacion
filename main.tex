@@ -107,14 +107,14 @@ Now then, the lexical analyzer represents the initial phase of a compilation pro
 \end{itemize}
 
 \section{Theorical Framework}
-Firstly, the traduction of a high level programming languaje into a low level one is a process structured in multiple phases.
+Firstly, the traduction of a high level programming languaje into a low level one is a process structured in multiple phases. [1]
 
 In this proyect we will aboard the inicial stages of the front-end of the compiler: the lexical analysis and the syntatic analysis. 
 This phases work together in order to validate that the source code given by the user is well formed before proceding with the semantic evaluation or the code generation. In this case, the validation procees its aplied to a code that is written in C that uyses a specific set of instructions
 
 \subsection{Lexical Analysis (Scanner / Lexer)}
 The lexical analysis represents the first stage of the languaje processing. Its fundamental responsability is to redd the code character by character and group them in secuences with logical meaning,
-known as lexemes.
+known as lexemes.[1]
 
 Starting from this lexemes, the analyzer, generatees a secuence of tokens (as identifiers, key words, constants, special characters, operators, punctuation, literals).
 In the proyect, the lexical analyzer identifies specific sets as:
@@ -127,9 +127,9 @@ In the proyect, the lexical analyzer identifies specific sets as:
 
 \subsection{Syntactic analysis (Parsing) and CFG (CONTEXT-FREE GRAMMARS)}
 
- The syntatic analyzer is the second stage in this compiler. It recibes the flow of tokens generate by the lexical analizer and verifies that the secuence fullfill the structural rules of the language.
+ The syntatic analyzer is the second stage in this compiler. It recibes the flow of tokens generate by the lexical analizer and verifies that the secuence fullfill the structural rules of the language. [1]
 
- To define this rules in a rigurous way, it uses the CFG (CONTEXT-FREE GRAMMARS), it helps to stablish which rules are valid using the production rules.
+ To define this rules in a rigurous way, it uses the CFG (CONTEXT-FREE GRAMMARS), it helps to stablish which rules are valid using the production rules.[1]
  
  In this proyect, the CFG defines the structure to prodecue any instruction (StmtList), covering numeric declarations (DeclNum), assignments (AssignSmt), and flow control statements (lfStmt, WhileStmt, ForStmtm)
 
@@ -143,11 +143,11 @@ In the proyect, the lexical analyzer identifies specific sets as:
 
  \vspace{0.5 cm }
 
-The main objective of the parser is to organize the sequence of tokens into a hierarchical structure called a parse tree (or syntax tree). This structure shows how the tokens relate to each other according to the language rules and confirms that the code follows the correct syntax
+The main objective of the parser is to organize the sequence of tokens into a hierarchical structure called a parse tree (or syntax tree). This structure shows how the tokens relate to each other according to the language rules and confirms that the code follows the correct syntax [2]
 
 \subsection{Parsing Strategies: Top-Down Approach and Precedence Resolution}
 
- There are two main ways to construct the syntax tree: Top-Down and Bottom-Up. This project implements a Top-Down approach through a Recursive Descent Parser. In this method, the tree is built starting from the initial symbol of the grammar down to the leaves (the tokens), associating a recursive function with each grammar rule to process the input from left to right.
+ There are two main ways to construct the syntax tree: Top-Down and Bottom-Up. This project implements a Top-Down approach through a Recursive Descent Parser. In this method, the tree is built starting from the initial symbol of the grammar down to the leaves (the tokens), associating a recursive function with each grammar rule to process the input from left to right. [2]
 
 To ensure that this approach works mathematically without entering infinite loops and respecting the operation hierarchies, the grammar was designed with specific features: 
 
