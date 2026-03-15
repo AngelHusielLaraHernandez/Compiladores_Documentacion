@@ -724,97 +724,97 @@ In order to validate our lexical analyzer, a couple of tests were proposed using
 
 
 \section{Results}
-Para validar el funcionamiento del analizador léxico se realizaron dos pruebas de ejecución del programa, mediante entrada por teclado y mediante entrada desde archivo. En ambos casos se observa el comportamiento del sistema durante el análisis del código fuente por medio de terminal, así como la generación del archivo de salida correspondiente.
+To validate the functioning of the lexical analyzer, two program execution tests were carried out, one using keyboard input and another using input from a file. In both cases, the system's behavior during the analysis of the source code can be observed through the terminal, as well as the generation of the corresponding output file.
 
-\subsection{Entrada por teclado}
-Para comprobar el funcionamiento del analizador léxico mediante entrada por teclado, ejecutamos el programa main.py sin argumentos desde la terminal.
-Luego sistema nos solicita ingresar código en lenguaje C línea por línea y la captura de este finaliza al introducir el símbolo \$.
-Para este caso utilizamos el mismo código contenido en el archivo code.c, ingresado manualmente por teclado.
+\subsection{Input from keyboard}
+To verify the operation of the lexical analyzer through keyboard input, we execute the program main.py without arguments from the terminal.
+The system then asks us to enter code in the C language line by line, and the input capture ends when the symbol \$ is entered.
+For this case, we used the same code contained in the file code.c, entered manually through the keyboard.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/KeyboardInput_1.png}
-    \caption{Terminal - Inicio del programa, captura de código fuente por teclado y resultados del análisis léxico.}
+    \caption{Terminal – Start of the program, capture of source code via keyboard, and results of the lexical analysis.}
     \label{fig:KeyboardInput_1.png}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/KeyboardInput_2.png}
-    \caption{Terminal - Agrupación de tokens por tipo.}
+    \caption{Terminal – Grouping of tokens by type.}
     \label{fig:KeyboardInput_2.png}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.80\textwidth]{img/Results/KeyboardInput_3.png}
-    \caption{Terminal - Agrupación de tokens por tipo y visualización del código fuente con resaltado de tokens.}
+    \caption{Terminal – Grouping of tokens by type and visualization of the source code with token highlighting.}
     \label{fig:KeyboardInput_3.png}
 \end{figure}
 
-\subsection{Entrada por archivo}
-Para validar el funcionamiento del programa con archivos fuente, realizamos un proceso similar pero ahora con el archivo code1.c almacenado en el directorio inputs.
-El programa se ejecutó especificando el nombre del archivo como argumento en la línea de comandos.
+\subsection{Input from file}
+To validate the program’s functionality with source files, we carried out a similar process, but this time using the file code1.c stored in the inputs directory.
+The program was executed by specifying the file name as an argument in the command line.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{img/Results/InputFile_1.png}
-    \caption{Terminal - Inicio del programa, captura de código fuente por teclado y resultados del análisis léxico.}
+    \caption{Terminal – Start of the program, capture of source code via keyboard, and results of the lexical analysis.}
     \label{fig:InputFile_1.png}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/InputFile_2.png}
-    \caption{Terminal - Agrupación de tokens por tipo.}
+    \caption{Terminal – Grouping of tokens by type.}
     \label{fig:InputFile_2.png}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/InputFile_3.png}
-    \caption{Terminal - Agrupación de tokens por tipo y visualización del código fuente con resaltado de tokens.}
+    \caption{Terminal – Grouping of tokens by type and visualization of the source code with token highlighting.}
     \label{fig:InputFile_3.png}
 \end{figure}
 
-\subsection{Análisis léxico en terminal}
-En las capturas de ambos resultados obtenidos, observamos como una vez ingresado el código por teclado o por archivo, podemos ver como el programa realiza el análisis léxico y nos muestra en la terminal los tokens detectados junto con su clasificación.
+\subsection{Lexical Analysis in Terminal}
+In the screenshots of both obtained results, we observe how once the code is entered either through the keyboard or from a file, we can see how the program performs the lexical analysis and shows us in the terminal the detected tokens along with their classification.\\
 
-Cada token es resaltado con un color específico para facilitar su identificación:
+Each token is highlighted with a specific color to facilitate its identification:
 
 \begin{itemize}
-    \item \textbf{Keywords \& Literals:} Se muestran en color azul
-    \item \textbf{Identifiers:} Se muestran en color verde
-    \item \textbf{Puntuations:} Se muestran en color amarillo
-    \item \textbf{Operators:} Se muestran en color rosa
-    \item \textbf{Constants:} Se muestran en color rojo
-    \item \textbf{Specials:} Se muestran en color blanco
+    \item \textbf{Keywords \& Literals:} Shown in blue
+    \item \textbf{Identifiers:} Shown in green
+    \item \textbf{Punctuations:} Shown in yellow
+    \item \textbf{Operators:} Shown in pink
+    \item \textbf{Constants:} Shown in red
+    \item \textbf{Specials:} Shown in white
 \end{itemize}
 
-\subsection{Agrupación de tokens por tipo}
-Después, el programa nos pregunta si deseamos agrupar los tokens por tipo.
-Si aceptamos, el sistema reorganiza la salida mostrando los tokens clasificados por categoría, agrupando todos los elementos pertenecientes al mismo tipo léxico y cuantas veces se repite cada uno.
-Esto nos facilita observar la distribución de tokens encontrados dentro del código fuente.
+\subsection{Grouping of Tokens by Type}
+Afterwards, the program asks us if we want to group the tokens by type.
+If we accept, the system reorganizes the output by showing the tokens classified by category, grouping all the elements that belong to the same lexical type and how many times each one appears.
+This makes it easier for us to observe the distribution of tokens found within the source code.
 
-\subsection{Visualización del código con resaltado de tokens}
-El programa también nos permite visualizar nuevamente el código fuente original con los tokens resaltados según su tipo léxico.\\
-Esta funcionalidad permite comparar el código original con la clasificación realizada por el analizador, mostrando claramente cómo cada parte del programa es identificada.
+\subsection{Code Visualization with Token Highlighting}
+The program also allows us to visualize again the original source code with the tokens highlighted according to their lexical type.\\
+This functionality allows us to compare the original code with the classification performed by the analyzer, clearly showing how each part of the program is identified.
 
-\subsection{Exportación de resultados}
-Casi al final el programa nos pregunta como usuarios si deseamos exportar los resultados del análisis, el cuál se guardará en un archivo de texto dentro del directorio outputs. Y finalmente decidimos si queremos realizar un nuevo análisis o finalizar la ejecución del programa.
+\subsection{Exporting Results}
+Near the end, the program asks us as users if we want to export the results of the analysis, which will be saved in a text file inside the outputs directory. Finally, we decide whether we want to perform a new analysis or finish the execution of the program.\\
 
-A continuación, se muestran capturas de pantalla del archivo de salida generado en ambos casos, donde se puede observar el mismo formato de clasificación y agrupación de tokens que se muestra en la terminal, pero ahora almacenado en un documento de texto para su posterior consulta o análisis.
+A continuation, screenshots of the output file generated in both cases are shown, where the same format of token classification and grouping that is displayed in the terminal can be observed, but now stored in a text document for later consultation or analysis.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/KeyboardInput_4.png}
-    \caption{Archivo de salida - Resultados del análisis a partir de la entrada por teclado.}
+    \caption{Output file – Results of the analysis from keyboard input.}
     \label{fig:InputFile_4.png}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/Results/InputFile_4.png}
-    \caption{Archivo de salida - Resultados del análisis a partir de la entrada por archivo.}
+    \caption{Output file – Results of the analysis from file input.}
     \label{fig:InputFile_4.png}
 \end{figure}
 
