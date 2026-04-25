@@ -1,0 +1,73 @@
+Syntax & Semantic Analyzer - Report
+==================================================
+
+Lexical Analysis - Results
+==================================================
+Total tokens found: 22
+
+
+TOKEN TYPE           | LEXEMS
+--------------------------------------------------
+KEYWORD              | int
+IDENTIFIER           | x
+PUNCTUATION          | ;
+IDENTIFIER           | x
+OPERATOR             | =
+CONSTANT             | 5
+PUNCTUATION          | ;
+KEYWORD              | int
+IDENTIFIER           | result
+OPERATOR             | =
+IDENTIFIER           | x
+OPERATOR             | +
+IDENTIFIER           | x
+PUNCTUATION          | ;
+IDENTIFIER           | printf
+PUNCTUATION          | (
+LITERAL              | "El resultado es = result"
+PUNCTUATION          | ,
+OPERATOR             | %
+IDENTIFIER           | d
+PUNCTUATION          | )
+PUNCTUATION          | ;
+==================================================
+GROUPED TOKENS BY TYPE
+==================================================
+KEYWORD (Total: 2):
+    int: 2
+
+IDENTIFIER (Total: 7):
+    x: 4
+    result: 1
+    printf: 1
+    d: 1
+
+PUNCTUATION (Total: 7):
+    ;: 4
+    (: 1
+    ,: 1
+    ): 1
+
+OPERATOR (Total: 4):
+    =: 2
+    +: 1
+    %: 1
+
+CONSTANT (Total: 1):
+    5: 1
+
+LITERAL (Total: 1):
+    "El resultado es = result": 1
+
+Total tokens found: 22
+
+
+Syntax & Semantic Analysis - Results
+==================================================
+Syntax analysis: INVALID
+Semantic analysis (SDT): INVALID
+
+Syntax Errors:
+  - Syntax error near '%' (token MOD) at line 4
+
+==================================================

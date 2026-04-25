@@ -1,4 +1,15 @@
-# Archivos auxiliares de LaTeX
+# Entornos virtuales
+.venv/
+python/.venv/
+venv/
+env/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos temporales de compilación de LaTeX
 *.aux
 *.bbl
 *.bcf
@@ -10,14 +21,3 @@
 *.run.xml
 *.synctex.gz
 *.toc
-*.lof
-*.lot
-*.idx
-*.ilg
-*.ind
-*.glg
-*.glo
-*.gls
-/%OUTDIR%
-main.bbl-SAVE-ERROR
-/.vscode
