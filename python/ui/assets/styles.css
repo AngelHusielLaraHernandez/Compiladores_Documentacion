@@ -112,23 +112,31 @@ h1, h2, h3 {
     letter-spacing: 0.3px;
 }
 
-/* ---------- project title ---------- */
+/* ---------- project title (animated shimmer) ---------- */
+@keyframes titleShimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .project-title {
-    font-size: 4.5rem; 
-    font-weight: 900; 
-    letter-spacing: -1.5px; 
-    
-    background: linear-gradient(180deg, #ffffff 5%, #0044ff 60%, #0011aa 100%);
-    
+    font-size: 4.5rem;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+
+    background: linear-gradient(270deg, #a5b4fc, #4d8dff, #0044ff, #818cf8, #c084fc, #4d8dff, #a5b4fc);
+    background-size: 300% 300%;
+    animation: titleShimmer 6s ease infinite;
+
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     text-fill-color: transparent;
-    
+
     line-height: 1.2;
-    padding-top: 15px; 
+    padding-top: 15px;
     padding-bottom: 5px;
-    margin-bottom: -15px; 
+    margin-bottom: -15px;
 }
 div.stMarkdown h1 {
     margin-top: 0px !important;
