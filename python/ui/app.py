@@ -434,9 +434,81 @@ def main() -> None:
         st.session_state["source_code"] = SAMPLE_CODE[selected]
         st.session_state["analysis_result"] = None
 
-    # Titles
-    st.markdown('<div class="project-title">C-Reload</div>', unsafe_allow_html=True)
-    st.markdown("#### Syntax & Semantic Analyzer")
+    # Titles and Beta Toggle
+    col_title, col_toggle = st.columns([3, 1], vertical_alignment="bottom")
+    with col_title:
+        st.markdown('<div class="project-title">C-Reload</div>', unsafe_allow_html=True)
+        st.markdown("#### Syntax & Semantic Analyzer")
+    with col_toggle:
+        beta_mode = st.toggle("Modo Beta (Estatico)")
+
+    # Si el Modo Beta está activo, inyectamos CSS para sobreescribir el diseño
+    if beta_mode:
+        st.markdown("""
+        <style>
+            /* 1. Ocultar los videos dinámicos */
+            #cr-video-bg { display: none !important; }
+            
+            /* 2. Fondo estático radial de la presentación */
+            .stApp, [data-testid="stAppViewContainer"] {
+                background: radial-gradient(ellipse at center, #0f1628 0%, #060a14 70%, #000000 100%) !important;
+            }
+
+            /* 3. Adaptación del Modo Luz (Persona 3) para fondo oscuro */
+            /* Forzar textos principales a blanco para legibilidad */
+            .stApp * {
+                color: #ffffff !important;
+            }
+            
+            /* Mantener el color Cyan vibrante como acento en títulos */
+            h1, h2, h3, h4, .status-title {
+                text-transform: uppercase !important;
+                font-style: italic !important;
+                font-weight: 900 !important;
+                text-shadow: 2px 2px 0px #00BFFF !important;
+            }
+
+            /* Contenedores con bordes afilados (estilo modo luz) */
+            .status-card, [data-testid="stMetric"], div[data-baseweb="select"] > div, textarea {
+                background-color: rgba(30, 33, 44, 0.8) !important;
+                border: 2px solid #00BFFF !important;
+                border-radius: 0px !important; /* Esquinas afiladas */
+            }
+
+            /* Botón analizar agresivo e inclinado */
+            .stButton > button {
+                border-radius: 0px !important;
+                border: 3px solid #00BFFF !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                color: #00BFFF !important;
+                font-weight: 900 !important;
+                font-style: italic !important;
+                text-transform: uppercase !important;
+                box-shadow: 4px 4px 0px rgba(0, 191, 255, 0.4) !important;
+            }
+            .stButton > button:hover {
+                background-color: #00BFFF !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                transform: translate(2px, 2px);
+            }
+            
+            /* Tabs estilo P3 */
+            .stTabs [data-baseweb="tab"] {
+                border-radius: 0px !important;
+                border: 2px solid transparent !important;
+            }
+            .stTabs [data-baseweb="tab"][aria-selected="true"] {
+                border: 2px solid #00BFFF !important;
+                background-color: rgba(0, 191, 255, 0.2) !important;
+            }
+            
+            /* Corregir flecha del selector */
+            [data-testid="stSelectbox"] svg {
+                fill: #00BFFF !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
     # Layout: Two columns (Input | Output)
     input_col, output_col = st.columns([1.1, 1.5], gap="large")
