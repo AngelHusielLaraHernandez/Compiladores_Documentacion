@@ -849,3 +849,210 @@ body[data-cr-fullscreen="true"] [data-testid="stFullScreenFrame"] {
     background: transparent !important;
     background-color: transparent !important;
 }
+
+/* ============================================================
+   ESTILO PERSONA 3 (Reload) - SÓLO MODO CLARO
+   ============================================================ */
+
+/* 1. Paleta de colores Base (Alto Contraste y Cyan Vibrante) */
+html[data-cr-theme="light"] {
+    /* Color Accent: El Cyan vibrante y eléctrico de P3 */
+    --cr-accent: #00BFFF !important; /* Deep Sky Blue - Muy legible */
+    
+    /* Textos: Negro Puro para legibility extrema contra Cyan y Blanco */
+    --cr-ink: #000000 !important;
+    --cr-ink-soft: #000000 !important;
+    --text-color: #000000 !important;
+    
+    /* Superficies: Menos transparentes para mejor contraste con bordes */
+    --cr-surface: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 2. Tipografía General (Dynamic & Bold like P3) */
+/* Usamos Inter para textos comunes y Montserrat para títulos/controles */
+html[data-cr-theme="light"] .stApp {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+}
+
+/* 3. Títulos Estilo P3: Mayúsculas, Itálicas, Bold, Aura Dual */
+html[data-cr-theme="light"] h1,
+html[data-cr-theme="light"] h2,
+html[data-cr-theme="light"] h3,
+html[data-cr-theme="light"] h4,
+html[data-cr-theme="light"] .status-title {
+    text-transform: uppercase !important;
+    font-style: italic !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    /* Sombra Cyan vibrante con contorno blanco para separación del video */
+    text-shadow: 2px 2px 0px #00BFFF, 
+                 0px 0px 8px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 4. Efecto de "Slanted Containers" (Inclinación sutil y Bordes) */
+/* Usamos un tilt muy sutil para no romper el layout de Streamlit, alternando ángulos */
+html[data-cr-theme="light"] .status-grid .card:nth-child(odd) {
+    transform: rotate(-0.5deg);
+    border: 3px solid #000000 !important; /* Bordes gruesos negros */
+    border-radius: 0px !important; /* Esquinas afiladas */
+    box-shadow: 5px 5px 0px #00BFFF !important; /* Sombra Cyan sólida offset */
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+html[data-cr-theme="light"] .status-grid .card:nth-child(even) {
+    transform: rotate(0.5deg);
+    border: 3px solid #000000 !important;
+    border-radius: 0px !important;
+    box-shadow: -5px 5px 0px #00BFFF !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Hover effect dinámico y afilado */
+html[data-cr-theme="light"] .status-grid .card:hover {
+    transform: rotate(0deg) scale(1.03);
+    box-shadow: 0px 0px 0px transparent !important;
+    background-color: #00BFFF !important; /* El fondo de la carta se vuelve Cyan */
+}
+/* Al hacer hover, forzamos que el texto dentro de la carta sea blanco */
+html[data-cr-theme="light"] .status-grid .card:hover *,
+html[data-cr-theme="light"] .status-grid .card:hover [data-testid="stMarkdownContainer"] p {
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+}
+
+/* 5. TABS y Botones Estilo P3: Bordes agresivos, Esquinas 0, Colores Cyan */
+html[data-cr-theme="light"] .stTabs [data-baseweb="tab-list"] {
+    background-color: transparent !important;
+    gap: 8px !important;
+}
+html[data-cr-theme="light"] .stTabs [data-baseweb="tab"] {
+    border-radius: 0px !important; /* Esquinas afiladas */
+    border: 2px solid transparent !important;
+    color: #000000 !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+}
+html[data-cr-theme="light"] .stTabs [data-baseweb="tab"][aria-selected="true"] {
+    border: 2px solid #000000 !important; /* Borde Negro agresivo */
+    background-color: #00BFFF !important; /* Fondo Cyan */
+    color: #FFFFFF !important; /* Texto blanco en tab seleccionado cyan */
+    transform: scale(1.05);
+}
+
+/* Botón Analizar: Negro Puro con hover Cyan */
+html[data-cr-theme="light"] .stButton button {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border: 3px solid #000000 !important;
+    border-radius: 0px !important; /* Esquinas afiladas */
+    text-transform: uppercase !important;
+    font-weight: 900 !important;
+    font-style: italic !important;
+    box-shadow: 5px 5px 0px #00BFFF !important; /* Sombra Cyan */
+    transition: all 0.2s ease !important;
+}
+html[data-cr-theme="light"] .stButton button:hover {
+    background-color: #00BFFF !important;
+    border-color: #00BFFF !important;
+    color: #000000 !important;
+    box-shadow: 0px 0px 0px transparent !important;
+    transform: translate(5px, 5px); /* Se "aplana" al presionar */
+}
+
+/* 6. Selector de Ejemplos: Bordes Cyan y Texto Negro */
+html[data-cr-theme="light"] [data-testid="stSelectbox"] div[data-baseweb="select"] {
+    border: 2px solid #00BFFF !important; /* Borde Cyan constante */
+    border-radius: 0px !important; /* Esquinas afiladas */
+    color: #000000 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+html[data-cr-theme="light"] [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+html[data-cr-theme="light"] [data-testid="stSelectbox"] svg {
+    fill: #000000 !important;
+}
+
+/* 7. Editor de Código y Texto Plano: Alto Contraste */
+html[data-cr-theme="light"] [data-testid="stTextArea"] textarea {
+    border-radius: 0px !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+/* Leyendas y textos Markdown sueltos */
+html[data-cr-theme="light"] p {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 0px rgba(0, 191, 255, 0.3) !important;
+}
+
+/* ============================================================
+   MEJORA DE LEGIBILIDAD: LEYENDA MODO OSCURO
+   ============================================================ */
+
+/* 1. Oscurecemos un poco más el fondo del cuadro de información (st.info) 
+      para que el texto blanco resalte mejor sobre el video de fondo */
+html[data-cr-theme="dark"] [data-testid="stAlert"] {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(4px); /* Suaviza el video detrás del texto */
+}
+
+/* 2. Forzamos el texto a blanco puro y aumentamos su grosor */
+html[data-cr-theme="dark"] [data-testid="stAlert"] p {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 3. Aseguramos que el ícono de la alerta también sea visible */
+html[data-cr-theme="dark"] [data-testid="stAlert"] svg {
+    fill: #ffffff !important;
+}
+
+/* ============================================================
+   REFUERZO VISUAL AZUL: MODO OSCURO (HEADERS & TABS)
+   ============================================================ */
+
+/* 1. Bloque azul opaco para los subencabezados (Output y AST graph) */
+html[data-cr-theme="dark"] [data-testid="stMain"] h3 {
+    background-color: rgba(0, 85, 255, 0.25) !important; /* Azul semi-transparente */
+    padding: 8px 20px !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(77, 141, 255, 0.3) !important;
+    display: inline-block !important; /* El bloque rodea solo al texto */
+    color: #ffffff !important;
+    text-shadow: 0px 0px 10px rgba(0, 85, 255, 0.5) !important;
+    margin-bottom: 15px !important;
+}
+
+/* 2. Bloque azul opaco para la barra de pestañas (Lexical, Semantic, Visual SDT) */
+html[data-cr-theme="dark"] .stTabs [data-baseweb="tab-list"] {
+    background-color: rgba(0, 85, 255, 0.15) !important;
+    padding: 6px !important;
+    border-radius: 14px !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(77, 141, 255, 0.2) !important;
+    width: fit-content !important; /* Se ajusta al ancho de las pestañas */
+    margin-bottom: 10px !important;
+}
+
+/* Aseguramos que el texto de las pestañas sea blanco y nítido */
+html[data-cr-theme="dark"] .stTabs [data-baseweb="tab"] p {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+}
+
+/* 3. Refuerzo para el título "Orientation" del segmented control */
+html[data-cr-theme="dark"] [data-testid="stWidgetLabel"] p {
+    background-color: rgba(0, 85, 255, 0.2) !important;
+    padding: 2px 10px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    color: #ffffff !important;
+}
