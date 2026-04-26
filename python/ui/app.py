@@ -1,19 +1,35 @@
 # C-Reload: Syntax & Semantic Analyzer (UI)
 
-import http.server
-import json
+import logging
+import warnings
 import os
+
+# ============================================================
+# 1. SILENCIADORES DE TERMINAL (DEBEN IR AL PRINCIPIO)
+# ============================================================
+
+# Silencia los logs internos de Streamlit (mensajes de "Please replace...")
+logging.getLogger("streamlit").setLevel(logging.ERROR)
+
+# Filtros agresivos para advertencias de Python y de Streamlit
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*st\.components\.v1\.html.*")
+
+# ============================================================
+# 2. IMPORTACIONES DEL SISTEMA Y STREAMLIT
+# ============================================================
+
+import json
 import sys
-import threading
 
 import streamlit as st
 import streamlit.components.v1 as components
 
 # Adding the project root to sys.path to allow imports from the compiler and utils packages
-
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
-	sys.path.append(ROOT_DIR)
+    sys.path.append(ROOT_DIR)
 
 from compiler.parser_sdt import parse_source
 
@@ -30,7 +46,6 @@ SAMPLE_FILES = {
     "SEM - Non-evaluable condition": "sem_condicion_no_evaluable.c",
 }
 
-
 def _read_sample_file(file_name: str) -> str:
     file_path = os.path.join(ROOT_DIR, "inputs", file_name)
     try:
@@ -41,7 +56,7 @@ def _read_sample_file(file_name: str) -> str:
 
 
 def _build_sample_code() -> dict:
-	return {label: _read_sample_file(file_name) for label, file_name in SAMPLE_FILES.items()}
+    return {label: _read_sample_file(file_name) for label, file_name in SAMPLE_FILES.items()}
 
 
 SAMPLE_CODE = _build_sample_code()
@@ -49,65 +64,10 @@ DEFAULT_SAMPLE_KEY = next(iter(SAMPLE_CODE), "")
 
 
 def _load_css() -> None:
-	css_path = os.path.join(os.path.dirname(__file__), "assets", "styles.css")
-	if os.path.exists(css_path):
-		with open(css_path, "r", encoding="utf-8") as css_file:
-			st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
-
-
-_VIDEO_PORT = 8502
-
-
-def _start_video_server() -> int:
-    """Lanza un servidor HTTP daemon que sirve los MP4 de la carpeta video/.
-
-    Usa allow_reuse_address=True para que el puerto pueda reutilizarse
-    tras un hot-reload (estado TIME_WAIT). Prueba puertos 8502..8506
-    y devuelve el puerto que logró abrir.
-    """
-    global _VIDEO_PORT
-    video_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "video")
-
-    class _ReuseHTTPServer(http.server.HTTPServer):
-        allow_reuse_address = True
-        
-        
-        def handle_error(self, request, client_address):
-            pass
-
-    class _Handler(http.server.SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, directory=video_dir, **kwargs)
-
-        def log_message(self, *args, **kwargs):
-            pass 
-
-        def end_headers(self):
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Cache-Control", "no-cache")
-            super().end_headers()
-
-        
-        def handle(self):
-            try:
-                super().handle()
-            except (ConnectionResetError, BrokenPipeError):
-                pass
-
-    for port in range(8502, 8507):
-        try:
-            server = _ReuseHTTPServer(("127.0.0.1", port), _Handler)
-            threading.Thread(target=server.serve_forever, daemon=True).start()
-            _VIDEO_PORT = port
-            return port
-        except OSError:
-            continue
-
-    return _VIDEO_PORT
-
-
-# Arrancar antes de cualquier render de Streamlit
-_start_video_server()
+    css_path = os.path.join(os.path.dirname(__file__), "assets", "styles.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as css_file:
+            st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
 
 def _inject_theme_detector() -> None:
@@ -129,11 +89,9 @@ def _inject_scripts_component() -> None:
     on localhost:8501) to:
       1. Detect Streamlit's theme and set data-cr-theme on the parent <html>.
       2. Force all Streamlit containers to be transparent so the video shows.
-      3. Create the #cr-video-bg div with two <video> elements served by our
-         local HTTP daemon on _VIDEO_PORT.
+      3. Create the #cr-video-bg div with two <video> elements served by GitHub Raw.
       4. Fit Graphviz full-screen frames.
     """
-    port = _VIDEO_PORT
     html_code = f"""<!DOCTYPE html>
 <html>
 <head><style>html,body{{margin:0;padding:0;background:transparent;}}</style></head>
@@ -143,8 +101,9 @@ def _inject_scripts_component() -> None:
     var pdoc;
     try {{ pdoc = window.parent.document; }} catch(e) {{ return; }}
 
-    var BG_DARK  = 'http://127.0.0.1:{port}/darkmode.mp4';
-    var BG_LIGHT = 'http://127.0.0.1:{port}/lightmode.mp4';
+    // ── Enlaces a GitHub Raw CDN ───────────────────────────────────────────
+    var BG_DARK  = 'https://raw.githubusercontent.com/AngelHusielLaraHernandez/Compiladores_Documentacion/main/python/ui/video/darkmode.mp4';
+    var BG_LIGHT = 'https://raw.githubusercontent.com/AngelHusielLaraHernandez/Compiladores_Documentacion/main/python/ui/video/lightmode.mp4';
 
     // ── 1. Theme detection ────────────────────────────────────────────────
     function detectTheme() {{
@@ -160,14 +119,14 @@ def _inject_scripts_component() -> None:
 
     // ── 2. Force transparency ─────────────────────────────────────────────
     function forceTransparent() {{
-		var sels = [
+        var sels = [
             'html','body','#root','.stApp','.withScreencast',
             '[data-testid="stAppViewContainer"]',
             '[data-testid="stHeader"]',
             '[data-testid="stMain"]',
             '[data-testid="stMainBlockContainer"]',
             'section.main',
-            '[data-testid="stFullScreenFrame"]' // <-- ¡AGREGA ESTA LÍNEA!
+            '[data-testid="stFullScreenFrame"]'
         ];
         sels.forEach(function(sel) {{
             pdoc.querySelectorAll(sel).forEach(function(el) {{
@@ -181,7 +140,6 @@ def _inject_scripts_component() -> None:
     function ensureVideoBg() {{
         if (pdoc.getElementById('cr-video-bg')) return;
 
-        // Inject CSS into parent if not already there
         if (!pdoc.getElementById('cr-video-style')) {{
             var style = pdoc.createElement('style');
             style.id = 'cr-video-style';
@@ -222,27 +180,23 @@ def _inject_scripts_component() -> None:
         pdoc.body.insertBefore(bg, pdoc.body.firstChild);
     }}
     
-	// ── 4. Fullscreen Detector ────────────────────────────────────────────
+    // ── 4. Fullscreen Detector ────────────────────────────────────────────
     function checkFullscreen() {{
         var isFs = false;
         
-        // Método 1: Buscar la clase oficial o el fondo oscuro (overlay) que pone Streamlit
         if (pdoc.querySelector('.stFullScreen') || pdoc.querySelector('[data-testid="stFullScreenOverlay"]')) {{
             isFs = true;
         }}
 
-        // Método 2 (Infalible): Medir si el grafo se estiró a toda la pantalla
         var vw = window.parent.innerWidth;
         var vh = window.parent.innerHeight;
         pdoc.querySelectorAll('[data-testid="stFullScreenFrame"]').forEach(function(frame) {{
             var rect = frame.getBoundingClientRect();
-            // Si el marco del grafo ocupa más del 80% del ancho y alto, está en fullscreen
             if (rect.width > vw * 0.8 && rect.height > vh * 0.8) {{
                 isFs = true;
             }}
         }});
 
-        // Activar o desactivar la bandera en el body
         if (isFs) {{
             pdoc.body.setAttribute('data-cr-fullscreen', 'true');
         }} else {{
@@ -250,25 +204,19 @@ def _inject_scripts_component() -> None:
         }}
     }}
 
-    // ── 4. Graphviz full-screen ───────────────────────────────────────────
-
     // ── Bootstrap ─────────────────────────────────────────────────────────
     function bootstrap() {{
         detectTheme();
         forceTransparent();
         ensureVideoBg();
-        
     }}
 
-    // Run immediately, then on intervals
     bootstrap();
     setInterval(detectTheme,     800);
     setInterval(forceTransparent, 800);
     setInterval(ensureVideoBg,   1500);
     setInterval(checkFullscreen,  300);
     
-
-    // MutationObserver on parent body for React re-renders
     try {{
         var obs = new MutationObserver(function() {{
             forceTransparent();
@@ -277,7 +225,6 @@ def _inject_scripts_component() -> None:
         }});
         obs.observe(pdoc.body, {{ childList: true, subtree: true }});
     }} catch(e) {{}}
-
     
 }})();
 </script>
@@ -287,181 +234,181 @@ def _inject_scripts_component() -> None:
 
 
 def _intro_overlay() -> None:
-	"""Show a one-time cinematic intro overlay on first page load."""
-	if st.session_state.get("intro_shown"):
-		return
-	st.session_state["intro_shown"] = True
+    """Show a one-time cinematic intro overlay on first page load."""
+    if st.session_state.get("intro_shown"):
+        return
+    st.session_state["intro_shown"] = True
 
-	# Generate particles with varied positions and delays
-	particles_html = ""
-	import random
-	random.seed(42)  # deterministic for consistent experience
-	for i in range(20):
-		left = random.randint(5, 95)
-		top = random.randint(20, 90)
-		delay = round(random.uniform(0, 2.5), 2)
-		size = random.randint(2, 6)
-		opacity = round(random.uniform(0.2, 0.6), 2)
-		particles_html += (
-			f'<div class="intro-particle" style="'
-			f'left:{left}%;top:{top}%;'
-			f'width:{size}px;height:{size}px;'
-			f'opacity:{opacity};'
-			f'animation-delay:{delay}s;'
-			f'"></div>'
-		)
+    # Generate particles with varied positions and delays
+    particles_html = ""
+    import random
+    random.seed(42)  # deterministic for consistent experience
+    for i in range(20):
+        left = random.randint(5, 95)
+        top = random.randint(20, 90)
+        delay = round(random.uniform(0, 2.5), 2)
+        size = random.randint(2, 6)
+        opacity = round(random.uniform(0.2, 0.6), 2)
+        particles_html += (
+            f'<div class="intro-particle" style="'
+            f'left:{left}%;top:{top}%;'
+            f'width:{size}px;height:{size}px;'
+            f'opacity:{opacity};'
+            f'animation-delay:{delay}s;'
+            f'"></div>'
+        )
 
-	st.markdown(
-		f'''
-		<div class="intro-overlay" id="introOverlay">
-			<div class="intro-particles">{particles_html}</div>
-			<span class="intro-line-1">Team 1</span>
-			<span class="intro-line-2">Compilers</span>
-			<span class="intro-line-3">Faculty of Engineering</span>
-			<div class="intro-separator"></div>
-			<span class="intro-title">C-Reload</span>
-			<span class="intro-subtitle">Syntax &amp; Semantic Analyzer</span>
-		</div>
-		<script>
-			setTimeout(function() {{
-				var el = document.getElementById('introOverlay');
-				if (el) {{ el.classList.add('done'); }}
-			}}, 7200);
-			setTimeout(function() {{
-				var el = document.getElementById('introOverlay');
-				if (el) {{ el.remove(); }}
-			}}, 7800);
-		</script>
-		''',
-		unsafe_allow_html=True,
-	)
+    st.markdown(
+        f'''
+        <div class="intro-overlay" id="introOverlay">
+            <div class="intro-particles">{particles_html}</div>
+            <span class="intro-line-1">Team 1</span>
+            <span class="intro-line-2">Compilers</span>
+            <span class="intro-line-3">Faculty of Engineering</span>
+            <div class="intro-separator"></div>
+            <span class="intro-title">C-Reload</span>
+            <span class="intro-subtitle">Syntax &amp; Semantic Analyzer</span>
+        </div>
+        <script>
+            setTimeout(function() {{
+                var el = document.getElementById('introOverlay');
+                if (el) {{ el.classList.add('done'); }}
+            }}, 7200);
+            setTimeout(function() {{
+                var el = document.getElementById('introOverlay');
+                if (el) {{ el.remove(); }}
+            }}, 7800);
+        </script>
+        ''',
+        unsafe_allow_html=True,
+    )
 
 def _background_bubbles() -> None:
-	"""Inject persistent floating bubbles as animated background."""
-	import random
-	random.seed(99)
-	bubbles = ""
-	for _ in range(15):
-		left = random.randint(2, 98)
-		size = random.randint(18, 70)
-		dur = round(random.uniform(12, 28), 1)
-		sway = round(random.uniform(4, 8), 1)
-		delay = round(random.uniform(0, 14), 1)
-		bubbles += (
-			f'<div class="bg-bubble" style="'
-			f'left:{left}%;'
-			f'width:{size}px;height:{size}px;'
-			f'--dur:{dur}s;--sway:{sway}s;'
-			f'animation-delay:{delay}s,{round(delay/2,1)}s;'
-			f'"></div>'
-		)
-	st.markdown(
-		f'<div class="bg-bubbles-container">{bubbles}</div>',
-		unsafe_allow_html=True,
-	)
+    """Inject persistent floating bubbles as animated background."""
+    import random
+    random.seed(99)
+    bubbles = ""
+    for _ in range(15):
+        left = random.randint(2, 98)
+        size = random.randint(18, 70)
+        dur = round(random.uniform(12, 28), 1)
+        sway = round(random.uniform(4, 8), 1)
+        delay = round(random.uniform(0, 14), 1)
+        bubbles += (
+            f'<div class="bg-bubble" style="'
+            f'left:{left}%;'
+            f'width:{size}px;height:{size}px;'
+            f'--dur:{dur}s;--sway:{sway}s;'
+            f'animation-delay:{delay}s,{round(delay/2,1)}s;'
+            f'"></div>'
+        )
+    st.markdown(
+        f'<div class="bg-bubbles-container">{bubbles}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # Component for displaying the syntax and semantic status in a visually appealing way
 def _status_block(syntax_ok: bool, semantic_ok: bool) -> None:
-	syntax_class = "ok" if syntax_ok else "fail"
-	syntax_text = "YES" if syntax_ok else "NO"
+    syntax_class = "ok" if syntax_ok else "fail"
+    syntax_text = "YES" if syntax_ok else "NO"
 
-	sdt_ok = syntax_ok and semantic_ok
-	sdt_class = "ok" if sdt_ok else "fail"
-	if syntax_ok:
-		sdt_text = "YES" if semantic_ok else "NO"
-	else:
-		sdt_text = "NO"
+    sdt_ok = syntax_ok and semantic_ok
+    sdt_class = "ok" if sdt_ok else "fail"
+    if syntax_ok:
+        sdt_text = "YES" if semantic_ok else "NO"
+    else:
+        sdt_text = "NO"
 
-	st.markdown(
-		f'''
-		<div class="status-grid">
-			<div class="status-card {syntax_class}">
+    st.markdown(
+        f'''
+        <div class="status-grid">
+            <div class="status-card {syntax_class}">
                 <div class="status-title">Valid Syntax</div>
-				<div class="status-value">{syntax_text}</div>
-			</div>
-			<div class="status-card {sdt_class}">
+                <div class="status-value">{syntax_text}</div>
+            </div>
+            <div class="status-card {sdt_class}">
                 <div class="status-title">Valid SDT</div>
-				<div class="status-value">{sdt_text}</div>
-			</div>
-		</div>
-		''',
-		unsafe_allow_html=True,
-	)
+                <div class="status-value">{sdt_text}</div>
+            </div>
+        </div>
+        ''',
+        unsafe_allow_html=True,
+    )
 
 # Formatting tokens in the console
 def _tokens_as_table(tokens):
-	return [
+    return [
         {"category": category, "lexeme": value}
-		for category, value in tokens
-	]
+        for category, value in tokens
+    ]
 
 # Generates a DOT graph from the AST dictionary.
 def _ast_to_dot(ast_dict, rankdir="TB"):
-	if not ast_dict:
-		return "digraph AST { label=\"AST\"; bgcolor=\"transparent\"; }"
+    if not ast_dict:
+        return "digraph AST { label=\"AST\"; bgcolor=\"transparent\"; }"
 
-	nodes = []
-	edges = []
-	count = 0
+    nodes = []
+    edges = []
+    count = 0
 
-	def esc(value):
-		return str(value).replace('"', '\\"').replace("<", "&lt;").replace(">", "&gt;")
+    def esc(value):
+        return str(value).replace('"', '\\"').replace("<", "&lt;").replace(">", "&gt;")
 
-	def node_style(kind):
-		if kind in {"if", "if_else", "while", "for", "block"}:
-			return "#FFF4CE", "#B08900", "#4A4000"
-		if kind in {"declaration", "declaration_list", "assignment", "return"}:
-			return "#DFF6DD", "#2E7D32", "#1A4D1E"
-		if kind in {"binary_op", "unary_op", "identifier", "constant", "literal"}:
-			return "#DDEBFF", "#1E5AA8", "#0E2D54"
-		return "#F3F2F1", "#605E5C", "#3B3A39"
+    def node_style(kind):
+        if kind in {"if", "if_else", "while", "for", "block"}:
+            return "#FFF4CE", "#B08900", "#4A4000"
+        if kind in {"declaration", "declaration_list", "assignment", "return"}:
+            return "#DFF6DD", "#2E7D32", "#1A4D1E"
+        if kind in {"binary_op", "unary_op", "identifier", "constant", "literal"}:
+            return "#DDEBFF", "#1E5AA8", "#0E2D54"
+        return "#F3F2F1", "#605E5C", "#3B3A39"
 
-	def walk(node, parent_id=None):
-		nonlocal count
-		count += 1
-		node_id = f"n{count}"
-		kind = node.get("kind", "node")
-		value = node.get("value")
-		lineno = node.get("lineno", 0)
-		fill, border, font_color = node_style(kind)
+    def walk(node, parent_id=None):
+        nonlocal count
+        count += 1
+        node_id = f"n{count}"
+        kind = node.get("kind", "node")
+        value = node.get("value")
+        lineno = node.get("lineno", 0)
+        fill, border, font_color = node_style(kind)
 
-		value_text = "-" if value is None else esc(value)
-		if len(value_text) > 42:
-			value_text = value_text[:39] + "..."
-		line_text = f"L{lineno}" if lineno else "-"
+        value_text = "-" if value is None else esc(value)
+        if len(value_text) > 42:
+            value_text = value_text[:39] + "..."
+        line_text = f"L{lineno}" if lineno else "-"
 
-		label = (
-			"<"
-			"<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLPADDING=\"2\">"
-			f"<TR><TD><FONT COLOR=\"{font_color}\"><B>{esc(kind)}</B></FONT></TD></TR>"
-			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">value: {value_text}</FONT></TD></TR>"
-			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">line: {line_text}</FONT></TD></TR>"
-			"</TABLE>>"
-		)
+        label = (
+            "<"
+            "<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLPADDING=\"2\">"
+            f"<TR><TD><FONT COLOR=\"{font_color}\"><B>{esc(kind)}</B></FONT></TD></TR>"
+            f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">value: {value_text}</FONT></TD></TR>"
+            f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">line: {line_text}</FONT></TD></TR>"
+            "</TABLE>>"
+        )
 
-		nodes.append(
-			f"{node_id} [label={label}, shape=box, style=\"rounded,filled\", fillcolor=\"{fill}\", color=\"{border}\", penwidth=1.4]"
-		)
-		if parent_id is not None:
-			edges.append(f"{parent_id} -> {node_id} [color=\"#8A8886\", arrowsize=0.7]")
+        nodes.append(
+            f"{node_id} [label={label}, shape=box, style=\"rounded,filled\", fillcolor=\"{fill}\", color=\"{border}\", penwidth=1.4]"
+        )
+        if parent_id is not None:
+            edges.append(f"{parent_id} -> {node_id} [color=\"#8A8886\", arrowsize=0.7]")
 
-		for child in node.get("children", []):
-			walk(child, node_id)
+        for child in node.get("children", []):
+            walk(child, node_id)
 
-	walk(ast_dict)
-	body = "\n".join(nodes + edges)
-	return (
-		"digraph AST {\n"
-		"bgcolor=\"transparent\";\n"
-		f"rankdir={rankdir};\n"
-		"nodesep=0.25;\n"
-		"ranksep=0.35;\n"
-		"fontname=\"Segoe UI\";\n"
-		"node [fontname=\"Segoe UI\"];\n"
-		f"{body}\n"
-		"}\n"
-	)
+    walk(ast_dict)
+    body = "\n".join(nodes + edges)
+    return (
+        "digraph AST {\n"
+        "bgcolor=\"transparent\";\n"
+        f"rankdir={rankdir};\n"
+        "nodesep=0.25;\n"
+        "ranksep=0.35;\n"
+        "fontname=\"Segoe UI\";\n"
+        "node [fontname=\"Segoe UI\"];\n"
+        f"{body}\n"
+        "}\n"
+    )
 
 
 def main() -> None:
@@ -487,7 +434,7 @@ def main() -> None:
         st.session_state["source_code"] = SAMPLE_CODE[selected]
         st.session_state["analysis_result"] = None
 
-	# Titles
+    # Titles
     st.markdown('<div class="project-title">C-Reload</div>', unsafe_allow_html=True)
     st.markdown("#### Syntax & Semantic Analyzer")
 
@@ -497,7 +444,7 @@ def main() -> None:
     with input_col:
         st.subheader("Input")
         
-		# Sample selection dropdown
+        # Sample selection dropdown
         st.selectbox(
             "Samples",
             list(SAMPLE_CODE.keys()),
@@ -514,7 +461,7 @@ def main() -> None:
         with col_btn_upload:
             uploaded = st.file_uploader("Upload C code", type=["c", "txt"], label_visibility="collapsed")
             
-		# Logic to handle file upload and update the text area with the uploaded content
+        # Logic to handle file upload and update the text area with the uploaded content
         if uploaded is not None:
             uploaded_text = uploaded.getvalue().decode("utf-8", errors="ignore")
             if uploaded_text != st.session_state.get("last_uploaded_content", ""):
@@ -538,15 +485,15 @@ def main() -> None:
             st.info("Select or edit a sample on the left, then click **Analyze**.")
         else:
             _status_block(result["syntax_ok"], result["semantic_ok"])
-			# Tabs for Tokens, Semantic details, and AST visualization
+            # Tabs for Tokens, Semantic details, and AST visualization
             tab1, tab2, tab3 = st.tabs(["Lexical", "Semantic", "Visual SDT"])
 
-			# Lexical details in the first tab
+            # Lexical details in the first tab
             with tab1:
                 st.subheader("Tokens")
                 st.dataframe(_tokens_as_table(result["tokens"]), width="stretch", hide_index=True)
-			
-			# Semantic details in the second tab
+            
+            # Semantic details in the second tab
             with tab2:
                 st.subheader("Syntax errors")
                 if result["syntax_errors"]:
@@ -578,7 +525,7 @@ def main() -> None:
                 else:
                     st.info("No SDT trace available.")
 
-			# Visualization of the AST in the third tab
+            # Visualization of the AST in the third tab
             with tab3:
                 st.subheader("AST graph")
                 st.markdown(
@@ -626,8 +573,8 @@ def main() -> None:
                 ),
                 file_name="CReload_report.json",
                 mime="application/json",
-				width="stretch",
+                width="stretch",
             )
 
 if __name__ == "__main__":
-	main()
+    main()
