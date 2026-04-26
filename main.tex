@@ -78,6 +78,16 @@
 \renewcommand{\headrulewidth}{0.4pt} 
 \renewcommand{\footrulewidth}{0.4pt}  
 
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black!30},
+    showstringspaces=false
+}
+
+
 \begin{document}
 \raggedbottom
 %\frontmatter
@@ -773,8 +783,8 @@ follows:
 
     \item \textbf{OPERATOR (11):} The assignment operator \texttt{=} appears 6 times, 
     the addition operator \texttt{+} 3 times, and the relational operators \texttt{<} 
-    and \texttt{>} once each.
-
+  and \texttt{>} once each.°!
+   
     \item \textbf{PUNCTUATION (20):} The most frequent punctuation token is the 
     semicolon \texttt{;} with 8 occurrences, followed by the comma \texttt{,} 
     (4 times), and matching pairs of parentheses (3 each). The curly braces 
@@ -805,12 +815,22 @@ the correct tokenization.
 
 \subsubsection{Syntax and Semantic Analysis}
 
-After the lexical phase, the user is prompted to run syntax and semantic analysis. 
+After the lexical phase, the user can run syntax and semantic analysis. 
 Both phases completed successfully for the provided input, reporting \texttt{VALID} 
 results in both cases. This confirms that the token stream conforms to the LR(1) 
-grammar defined for the supported C subset, and that the semantic rules — including 
+grammar defined for the supported C subset, and that the semantic rules, including 
 variable declaration before use, type compatibility in assignments and expressions, 
-and correct use of operators — were all satisfied.
+and correct use of operators, were all satisfied.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Pruebas/Terminal/sE.png}
+    \caption{syntax and semantic analysis.}
+    \label{fig:results}
+\end{figure}
+
+
 
 \subsubsection{Export}
 
@@ -818,18 +838,573 @@ Finally, the compiler offers the option to export the analysis results. Two outp
 files are generated: a plain-text report (\texttt{report\_keyboard.txt}) containing 
 the full token listing and analysis summary, and a JSON file 
 (\texttt{ast\_keyboard.json}) containing the Abstract Syntax Tree produced during 
-parsing. These exports allow for further inspection and documentation of the 
-analysis outside the terminal environment.
+parsing. 
+
+In this case, we will focus in the Abstract Syntax Tree, which is a hierarchical representation of the syntactic structure of the source code. The AST captures the relationships between different language constructs, such as declarations, assignments, expressions, and control structures.
+
+\begin{lstlisting}
+{
+    "kind": "program",
+    "value": null,
+    "lineno": 0,
+    "children": [
+        {
+            "kind": "declaration",
+            "value": { "name": "x", "type": "int" },
+            "lineno": 1,
+            "children": [ 
+                { "kind": "constant", "value": "1", "lineno": 1, "children": [] } 
+            ]
+        },
+        {
+            "kind": "declaration",
+            "value": { "name": "y", "type": "float" },
+            "lineno": 2,
+            "children": [ 
+                { "kind": "constant", "value": "2", "lineno": 2, "children": [] } 
+            ]
+        },
+        {
+            "kind": "declaration",
+            "value": { "name": "c", "type": "char" },
+            "lineno": 3,
+            "children": [ 
+                { "kind": "literal", "value": "'a'", "lineno": 3, "children": [] } 
+            ]
+        },
+        {
+            "kind": "assignment",
+            "value": { "name": "x", "op": "=" },
+            "lineno": 4,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "+",
+                    "lineno": 4,
+                    "children": [
+                        { "kind": "identifier", "value": "x", "lineno": 4, "children": [] },
+                        { "kind": "constant", "value": "1", "lineno": 4, "children": [] }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "assignment",
+            "value": { "name": "y", "op": "=" },
+            "lineno": 5,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "+",
+                    "lineno": 5,
+                    "children": [
+                        { "kind": "identifier", "value": "y", "lineno": 5, "children": [] },
+                        { "kind": "identifier", "value": "x", "lineno": 5, "children": [] }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "if",
+            "value": null,
+            "lineno": 6,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "&&",
+                    "lineno": 6,
+                    "children": [
+                        {
+                            "kind": "binary_op",
+                            "value": "<",
+                            "lineno": 0,
+                            "children": [
+                                { "kind": "identifier", "value": "x", "lineno": 6, "children": [] },
+                                { "kind": "identifier", "value": "y", "lineno": 6, "children": [] }
+                            ]
+                        },
+                        {
+                            "kind": "binary_op",
+                            "value": ">",
+                            "lineno": 0,
+                            "children": [
+                                { "kind": "identifier", "value": "y", "lineno": 6, "children": [] },
+                                { "kind": "constant", "value": "0", "lineno": 6, "children": [] }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "block",
+                    "value": null,
+                    "lineno": 6,
+                    "children": [
+                        {
+                            "kind": "assignment",
+                            "value": { "name": "x", "op": "+=" },
+                            "lineno": 7,
+                            "children": [
+                                { "kind": "constant", "value": "1", "lineno": 7, "children": [] }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "print_stmt",
+            "value": null,
+            "lineno": 9,
+            "children": [
+                { "kind": "literal", "value": "\"%d %f %c\"", "lineno": 9, "children": [] },
+                { "kind": "identifier", "value": "x", "lineno": 9, "children": [] },
+                { "kind": "identifier", "value": "y", "lineno": 9, "children": [] },
+                { "kind": "identifier", "value": "c", "lineno": 9, "children": [] }
+            ]
+        },
+        {
+            "kind": "scan_stmt",
+            "value": null,
+            "lineno": 10,
+            "children": [
+                { "kind": "literal", "value": "\"%d\"", "lineno": 10, "children": [] },
+                { "kind": "identifier", "value": "x", "lineno": 10, "children": [] }
+            ]
+        }
+    ]
+}
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{ Interface}
+The graphical user interface (GUI) provides a more visual and interactive way to use the compiler. It is implemented using Streamlit, which allows for easy creation of web-based interfaces.
+
+The GUI includes a text area for entering C code or by loading sample files, buttons to run the lexical, syntactic, and semantic analysis, and sections to display the results of each phase. The token table is shown in a structured format with color coding for different token types. The syntax and semantic analysis results are displayed with clear indicators of validity and any errors found.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Pruebas/Interfaz/Interfaz.png}
+    \caption{Graphical User Interface.}
+    \label{fig:results}
+\end{figure}
+
+The interface has precharge samples of C code that can be loaded with a single click, allowing users to quickly test the compiler with different inputs. The results are organized in tabs or sections for easy navigation between the lexical, syntactic, and semantic analysis outputs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{Pruebas/Interfaz/samples.png}
+    \caption{Sample Inputs.}
+    \label{fig:results}
+\end{figure}
+
+There are also options to visualize the generated Abstract Syntax Tree (AST) as a graph, which can be zoomed in for better examination of complex structures. This feature enhances the user's understanding of how the source code is parsed and structured internally by the compiler.
+
+
+
+We will do the same test as before but now in the graphical interface, loading the sample code that is provided in the interface. The results are consistent with the terminal mode, showing valid syntax and semantics, and providing a detailed report of each analysis phase.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Pruebas/Interfaz/Ok.png}
+    \caption{C code fragment.}
+    \label{fig:results}
+\end{figure}
+
+\subsubsection{Lexical Analysis}
+
+In here, the lexical analysis results are displayed in a structured table format, where the right column is the category and the right column is the lexeme.
+
+We can apply the next option to both columns:
+
+\begin{itemize}
+    \item \textbf{Sort ascending}: This option sorts the tokens in ascending order based on their lexeme or category, allowing for easier identification of patterns or specific tokens.
+
+    \item \textbf{Sort descending}: This option sorts the tokens in descending order, which can be useful for quickly finding the most frequently occurring tokens or for reverse alphabetical sorting.
+    
+    \item \textbf{Autosize}: This option adjusts the column widths automatically to fit the content, ensuring that all tokens and categories are fully visible without manual resizing.
+    
+    \item \textbf{Pin column}: This option allows the user to pin either the lexeme or category column, keeping it visible while scrolling through the token list, which is particularly helpful when dealing with long lists of tokens.
+
+    \item \textbf{Hide column}: This option allows the user to hide either the lexeme or category column, providing a more focused view on the remaining column, which can be useful for specific analysis tasks.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Pruebas/Interfaz/toptions.png}
+    \caption{Table options.}
+    \label{fig:results}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/t1.png}
+    \caption{Lexical Analysis Results.}
+    \label{fig:results}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/t2.png}
+    \caption{Lexical Analysis Results.}
+    \label{fig:results}
+\end{figure}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/t3.png}
+    \caption{Lexical Analysis Results.}
+    \label{fig:results}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/t4.png}
+    \caption{Lexical Analysis Results.}
+    \label{fig:results}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/t5.png}
+    \caption{Lexical Analysis Results.}
+    \label{fig:results}
+\end{figure}
+
+
+As we can see the results are exactly the same as in the terminal mode, but now they are presented in a more visual and interactive way, with options to sort, pin and hide columns for better analysis of the tokens.
+
+
+\newpage
+\subsubsection{Syntax and Semantic Analysis}
+
+
+This test case uses the code fragment described in the previous section, which covers
+the full subset of C defined in the grammar. The output is displayed in the
+\textbf{Semantic} tab of the graphical interface, which is divided into four
+sections: Output, Symbol Table, Semantic Errors, and SDT Trace.
 
 
 
 
+The \textbf{Output} panel confirms both results simultaneously: \textit{Valid Syntax:
+YES} and \textit{Valid SDT: YES}, indicating that the token stream conforms to the
+LR(1) grammar and that all semantic rules were satisfied.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/OUTPUT.png}
+    \caption{Output panel.}
+    \label{fig:results}
+\end{figure}
+
+
+Under the \textbf{Syntax Errors} section, the message \textit{``No syntax errors''}
+confirms that the LR(1) parser completed its traversal without encountering any
+structural violation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/Syntax.png}
+    \caption{Syntax Errors.}
+    \label{fig:results}
+\end{figure}
 
 
 
 
+The \textbf{Symbol Table} records the three variables declared in the program:
+\texttt{x} of type \texttt{int}, \texttt{y} of type \texttt{float}, and \texttt{c}
+of type \texttt{char}, confirming that the semantic analyzer correctly registered
+every declaration before processing subsequent statements.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/Symboltable.png}
+    \caption{Symbol Table.}
+    \label{fig:results}
+\end{figure}
+
+Under \textbf{Semantic Errors}, the message \textit{``No semantic errors''} confirms
+that all semantic rules were satisfied: every variable was declared before use, all
+assignments were type-compatible, and all expressions were well-formed.
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/Semantic.png}
+    \caption{Semantic Errors.}
+    \label{fig:results}
+\end{figure}
+
+
+
+The \textbf{SDT Trace} table provides a step-by-step log of the Syntax-Directed
+Translation traversal. Each row records the step number, the action performed,
+the node type, the source line, the status (\texttt{INFO} for traversal events,
+\texttt{OK} for successful checks), and a human-readable detail message.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/SDT.png}
+    \caption{SDT Trace.}
+    \label{fig:results}
+\end{figure}
+
+\subsubsection{ Visual SDT}
+
+The \textbf{Visual SDT} tab provides an interactive graphical representation of the
+Abstract Syntax Tree generated after a successful parse. The graph uses a color-coded
+legend to distinguish between four categories of nodes:
+
+\begin{itemize}
+    \item \textbf{Green}: Declaration and assignment nodes.
+    \item \textbf{Blue}: Expression and operand nodes.
+    \item \textbf{Yellow}: Control flow nodes (\texttt{if}, \texttt{while},
+    \texttt{for}).
+    \item \textbf{Gray}: Other nodes, including the program root and block nodes.
+\end{itemize}
+
+Additionally, the interface offers two orientation modes: \textbf{Top-Down}, which
+renders the tree from the root downward, and \textbf{Bottom-Up}, which inverts the
+layout. 
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Pruebas/Interfaz/TopDown.png}
+    \caption{Top-Down.}
+    \label{fig:results}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Pruebas/Interfaz/Bottomup.png}
+    \caption{Bottom-Up.}
+    \label{fig:results}
+\end{figure}
+
+\textbf{Note: In order to make cleary explanations, we are going to show the next results with the interface}
+
+
+\subsection{Case 2: Valid Syntax and Semantic Errors}
+
+For this test, the input code is:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Pruebas/Interfaz/2.png}
+    \caption{Input Code.}
+    \label{fig:results}
+\end{figure}
+
+This fragment is syntactically valid, it follows the grammar rules for a
+declaration followed by an assignment, but contains a semantic error: the integer
+constant \texttt{25} is being assigned to a variable \texttt{c} of type \texttt{char},
+which constitutes a type incompatibility.
+
+
+\subsubsection{Lexical Analysis}
+
+The lexer successfully tokenizes both statements, producing 9 tokens: \texttt{char}
+as \texttt{KEYWORD}, \texttt{c} as \texttt{IDENTIFIER}, \texttt{=} as
+\texttt{OPERATOR}, \texttt{'a'} as \texttt{LITERAL}, \texttt{;} as
+\texttt{PUNCTUATION}, followed by \texttt{c} as \texttt{IDENTIFIER}, \texttt{=} as
+\texttt{OPERATOR}, \texttt{25} as \texttt{CONSTANT}, and \texttt{;} as
+\texttt{PUNCTUATION}. The \textbf{Output} panel immediately reflects the nature of
+this case: \textit{Valid Syntax: YES} and \textit{Valid SDT: NO}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/lexical2.png}
+    \caption{Lexical Analysis.}
+    \label{fig:results}
+\end{figure}
+
+\newpage
+\subsubsection{Syntax and Semantic Analysis}
+
+Since the structure of both statements conforms to the grammar, the \textbf{Syntax
+Errors} section reports \textit{``No syntax errors''} and the \textbf{Symbol Table}
+correctly registers \texttt{c} as \texttt{char}, confirming that the parser completed
+its full traversal and the declaration was processed successfully.
+
+However, the \textbf{Semantic Errors} section reports the following error:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/error2.png}
+    \caption{Semantic Errors.}
+    \label{fig:results}
+\end{figure}
+
+This confirms that the type checker correctly identified the incompatibility between
+the inferred type of the right-hand side expression and the declared type of the
+target variable.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/sdterror.png}
+    \caption{SDT Trace.}
+    \label{fig:results}
+\end{figure}
+
+
+The \textbf{SDT Trace} details the exact point at which the error was detected.
+Steps 1--5 process the declaration \texttt{char c = 'a'} successfully: \texttt{c}
+is declared as \texttt{char}, the literal is inferred as \texttt{char}, and the
+assignment check passes. Step 6 visits the assignment node at line 2, step 7 infers
+the constant \texttt{25} as \texttt{int}, and step 8 raises an \texttt{ERROR} with
+the message \textit{``Cannot assign 'int' to 'char'''}, precisely identifying the
+type mismatch.
+
+\newpage
+\subsubsection{Visual SDT}
+
+Since the syntax was valid and the parser completed its traversal, an AST was
+generated and is displayed in the \textbf{Visual SDT} tab. The tree shows the
+\texttt{program} root with two children: a \texttt{declaration} node for
+\texttt{char c = 'a'} with a \texttt{literal} leaf, and an \texttt{assignment} node
+for \texttt{c = 25} with a \texttt{constant} leaf. Both orientation modes,
+Top-Down and Bottom-Up, are available.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/bu2.png}
+    \caption{Bottom-Up.}
+    \label{fig:results}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/td2.png}
+    \caption{Top-Down.}
+    \label{fig:results}
+\end{figure}
+
+The compiler builds the program’s structure (the AST) first, even if the program has mistakes. After that, it checks for errors separately.
+ So, even if the code has type errors, you still get a complete tree that you can look at and analyze.
+
+
+\newpage
+
+\newpage
+
+\subsection{Case 3: Syntax Error}
+
+For this test, the input code is:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/3.png}
+    \caption{Top-Down.}
+    \label{fig:results}
+\end{figure}
+
+This statement violates the grammar: a declaration requires a valid initializer
+expression after the \texttt{=} operator, but a semicolon is found instead,
+making the token stream unrecognizable by the LR(1) parser.
+
+\subsubsection{Lexical Analysis}
+
+The lexer processes the input without issue, producing 4 tokens: \texttt{int} as
+\texttt{KEYWORD}, \texttt{x} as \texttt{IDENTIFIER}, \texttt{=} as
+\texttt{OPERATOR}, and \texttt{;} as \texttt{PUNCTUATION}. The \textbf{Output}
+panel reports both \textit{Valid Syntax: NO} and \textit{Valid SDT: NO}, since
+without a valid parse there is no basis for semantic analysis either.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/lexical3.png}
+    \caption{Lexical Analysis.}
+    \label{fig:results}
+\end{figure}
+
+
+\newpage
+\subsubsection{Syntax and Semantic Analysis}
+
+The \textbf{Syntax Errors} section reports the following error:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Pruebas/Interfaz/semaerrors.png}
+    \caption{Semantic Errors.}
+    \label{fig:results}
+\end{figure}
+
+
+
+\begin{quote}
+\textit{Syntax error near ';' (token SEMICOLON) at line 1.}
+\end{quote}
+
+Because the parser failed, no symbols were registered and the \textbf{Symbol Table}
+displays \textit{``No symbols registered.''}  The \textbf{Semantic Errors} section
+is empty and the \textbf{SDT Trace} reports \textit{``No SDT trace available.''}, 
+confirming that the semantic phase was never reached.
+
+
+\subsubsection{Visual SDT}
+
+Since the parse failed, no AST could be constructed. The \textbf{Visual SDT} tab
+displays the message \textit{``Cannot build the graph when syntax errors exist.''},
+confirming that the tree visualization is strictly dependent on a successful parse.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Pruebas/Interfaz/visualerros.png}
+    \caption{No tree available.}
+    \label{fig:results}
+\end{figure}
+
+
+From the case 2 and 3, we now see that if there is a syntax error, the compiler stops right away and doesn’t continue, but
+if there is a semantic error, the compiler still builds the program structure (the tree), but later it reports the mistake while checking the meaning.
 
 \section{Conclusions}
+
+In this work, based on the study of how a compiler functions and the relationship 
+between its different phases, we implemented a full front-end compiler capable of 
+processing fragments of code in the C language, covering lexical analysis, syntactic 
+analysis, and semantic validation through Syntax-Directed Translation. We established 
+a correspondence between the token categories used in the course and the token families 
+provided by the Pygments library, maintaining the classification of Keywords, 
+Identifiers, Punctuation Signs, Operators, Constants, and Special Characters, which 
+allowed the analyzer to correctly identify the lexemes of the source code and organize 
+them into classified tokens.
+
+Building on this foundation, the syntactic phase extended the lexical analyzer by 
+introducing a bottom-up LALR(1) parser built with PLY.YACC, which required adapting 
+the context-free grammar from right-recursive to left-recursive form and delegating 
+operator precedence directly to PLY's precedence mechanism. The parser constructs an 
+Abstract Syntax Tree during its traversal, which then serves as input to the semantic 
+phase, reflecting the fundamental architecture of a compiler where each phase feeds 
+the next. The semantic analyzer enforces the typing and scoping rules of the language 
+through a symbol table and a set of SDT rules, correctly detecting errors such as 
+undeclared variables, type incompatibilities, invalid format specifiers, and 
+non-evaluable conditions, always reporting the type of error, the variable involved, 
+and the line number where it was found.
+
+The test cases confirmed the correct behavior of the full pipeline across all three 
+phases: a syntax error stops the process immediately since no tree can be built, while 
+a semantic error is caught during the tree traversal, still producing a complete and 
+inspectable AST. Both the terminal mode and the graphical interface validated that all 
+phases work correctly together, providing a tool that is not only functional but also 
+easy to inspect and use for understanding how a compiler processes source code from 
+the first token to the final semantic check.
 
 
 % Impresión Referencias
