@@ -1,0 +1,188 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{holub-1990}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=a06240e0114bf677e00edeb08d2c5298}{%
+           family={Holub},
+           familyi={H\bibinitperiod},
+           given={Allen\bibnamedelimb I.},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Prentice-Hall}%
+      }
+      \strng{namehash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{fullhash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{fullhashraw}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{bibnamehash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{authorbibnamehash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{authornamehash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{authorfullhash}{a06240e0114bf677e00edeb08d2c5298}
+      \strng{authorfullhashraw}{a06240e0114bf677e00edeb08d2c5298}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{0-13-155045-4}
+      \field{title}{Compiler Design in C}
+      \field{year}{1990}
+      \field{dateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://holub.com/goodies/compiler/compilerDesignInC.pdf
+      \endverb
+      \verb{url}
+      \verb https://holub.com/goodies/compiler/compilerDesignInC.pdf
+      \endverb
+    \endentry
+    \entry{pygments-tokens-2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=b08fa489dc9c33d4ca38c619021ed466}{%
+           family={{Pygments Contributors}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{fullhash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{fullhashraw}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{bibnamehash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{authorbibnamehash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{authornamehash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{authorfullhash}{b08fa489dc9c33d4ca38c619021ed466}
+      \strng{authorfullhashraw}{b08fa489dc9c33d4ca38c619021ed466}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Builtin Tokens}
+      \field{urlday}{13}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://pygments.org/docs/tokens/
+      \endverb
+      \verb{url}
+      \verb https://pygments.org/docs/tokens/
+      \endverb
+    \endentry
+    \entry{geeksforgeeks-2025}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=f1e069787ece74531d112559945c6871}{%
+           family={{GeeksforGeeks}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{f1e069787ece74531d112559945c6871}
+      \strng{fullhash}{f1e069787ece74531d112559945c6871}
+      \strng{fullhashraw}{f1e069787ece74531d112559945c6871}
+      \strng{bibnamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authorbibnamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authornamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authorfullhash}{f1e069787ece74531d112559945c6871}
+      \strng{authorfullhashraw}{f1e069787ece74531d112559945c6871}
+      \field{extraname}{1}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{23}
+      \field{month}{7}
+      \field{title}{What is ContextFree Grammar?}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.geeksforgeeks.org/theory-of-computation/what-is-context-free-grammar/
+      \endverb
+      \verb{url}
+      \verb https://www.geeksforgeeks.org/theory-of-computation/what-is-context-free-grammar/
+      \endverb
+    \endentry
+    \entry{geeksforgeeks-2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=f1e069787ece74531d112559945c6871}{%
+           family={{GeeksforGeeks}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{f1e069787ece74531d112559945c6871}
+      \strng{fullhash}{f1e069787ece74531d112559945c6871}
+      \strng{fullhashraw}{f1e069787ece74531d112559945c6871}
+      \strng{bibnamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authorbibnamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authornamehash}{f1e069787ece74531d112559945c6871}
+      \strng{authorfullhash}{f1e069787ece74531d112559945c6871}
+      \strng{authorfullhashraw}{f1e069787ece74531d112559945c6871}
+      \field{extraname}{2}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{19}
+      \field{month}{2}
+      \field{title}{Ambiguous grammar}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.geeksforgeeks.org/compiler-design/ambiguous-grammar/
+      \endverb
+      \verb{url}
+      \verb https://www.geeksforgeeks.org/compiler-design/ambiguous-grammar/
+      \endverb
+    \endentry
+    \entry{wong-2014}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=87a8baf5d1fa550a5ed00942a84ddd04}{%
+           family={Wong},
+           familyi={W\bibinitperiod},
+           given={Cristopher},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{fullhash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{fullhashraw}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{bibnamehash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{authorbibnamehash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{authornamehash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{authorfullhash}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \strng{authorfullhashraw}{87a8baf5d1fa550a5ed00942a84ddd04}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{CFG Developer}
+      \field{year}{2014}
+      \field{dateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://web.stanford.edu/class/archive/cs/cs103/cs103.1156/tools/cfg/
+      \endverb
+      \verb{url}
+      \verb https://web.stanford.edu/class/archive/cs/cs103/cs103.1156/tools/cfg/
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

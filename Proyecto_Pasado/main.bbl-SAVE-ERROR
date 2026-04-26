@@ -1,0 +1,162 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{harris-2015}{book}{}{}
+      \name{author}{2}{}{%
+        {{hash=8cdcbd39d9ab4a8a997eefe63e71c4dc}{%
+           family={Harris},
+           familyi={H\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=dd908aeed8c0fdae65045567b1de4390}{%
+           family={Harris},
+           familyi={H\bibinitperiod},
+           given={Sarah},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Morgan Kaufmann Pub}%
+      }
+      \strng{namehash}{519ef25f331377c3f8a76c796092c007}
+      \strng{fullhash}{519ef25f331377c3f8a76c796092c007}
+      \strng{fullhashraw}{519ef25f331377c3f8a76c796092c007}
+      \strng{bibnamehash}{519ef25f331377c3f8a76c796092c007}
+      \strng{authorbibnamehash}{519ef25f331377c3f8a76c796092c007}
+      \strng{authornamehash}{519ef25f331377c3f8a76c796092c007}
+      \strng{authorfullhash}{519ef25f331377c3f8a76c796092c007}
+      \strng{authorfullhashraw}{519ef25f331377c3f8a76c796092c007}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{22}
+      \field{edition}{Arm Edition}
+      \field{month}{4}
+      \field{title}{Digital Design and Computer Architecture}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \true{nocite}
+    \endentry
+    \entry{elahi-2022}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=40e998cd0656a510326169381c5b2249}{%
+           family={Elahi},
+           familyi={E\bibinitperiod},
+           given={Ata},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{40e998cd0656a510326169381c5b2249}
+      \strng{fullhash}{40e998cd0656a510326169381c5b2249}
+      \strng{fullhashraw}{40e998cd0656a510326169381c5b2249}
+      \strng{bibnamehash}{40e998cd0656a510326169381c5b2249}
+      \strng{authorbibnamehash}{40e998cd0656a510326169381c5b2249}
+      \strng{authornamehash}{40e998cd0656a510326169381c5b2249}
+      \strng{authorfullhash}{40e998cd0656a510326169381c5b2249}
+      \strng{authorfullhashraw}{40e998cd0656a510326169381c5b2249}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{17}
+      \field{edition}{2}
+      \field{month}{3}
+      \field{subtitle}{Digital Design, Fundamentals of Computer Architecture and ARM Assembly Language}
+      \field{title}{Computer systems}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/978-3-030-93449-1
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/978-3-030-93449-1
+      \endverb
+    \endentry
+    \entry{smith-2019}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=c0335390e6dcad77f0091d57516ec815}{%
+           family={Smith},
+           familyi={S\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Apress}%
+      }
+      \strng{namehash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{fullhash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{fullhashraw}{c0335390e6dcad77f0091d57516ec815}
+      \strng{bibnamehash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{authorbibnamehash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{authornamehash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{authorfullhash}{c0335390e6dcad77f0091d57516ec815}
+      \strng{authorfullhashraw}{c0335390e6dcad77f0091d57516ec815}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{10}
+      \field{title}{{Raspberry Pi Assembly Language Programming}}
+      \field{year}{2019}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/978-1-4842-5287-1
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/978-1-4842-5287-1
+      \endverb
+    \endentry
+    \entry{anaya-no-date}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7a7fa193ce621e857274d1987930421b}{%
+           family={Anaya},
+           familyi={A\bibinitperiod},
+           given={Rubén},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{7a7fa193ce621e857274d1987930421b}
+      \strng{fullhash}{7a7fa193ce621e857274d1987930421b}
+      \strng{fullhashraw}{7a7fa193ce621e857274d1987930421b}
+      \strng{bibnamehash}{7a7fa193ce621e857274d1987930421b}
+      \strng{authorbibnamehash}{7a7fa193ce621e857274d1987930421b}
+      \strng{authornamehash}{7a7fa193ce621e857274d1987930421b}
+      \strng{authorfullhash}{7a7fa193ce621e857274d1987930421b}
+      \strng{authorfullhashraw}{7a7fa193ce621e857274d1987930421b}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Manual de recursos y aplicaciones Plataforma Rasberry Pi}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://odin.fi-b.unam.mx/micros/docs/Tutoriales%20Raspberry.pdf
+      \endverb
+      \verb{url}
+      \verb https://odin.fi-b.unam.mx/micros/docs/Tutoriales%20Raspberry.pdf
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

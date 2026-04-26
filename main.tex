@@ -72,7 +72,7 @@
 \pagestyle{fancy}
 \fancyhf{} 
 \fancyhead[L]{\includegraphics[height=1.5cm]{der.png}}
-\fancyhead[C]{\textbf{UNAM - Group 5} \hspace{0.5cm} \textbf{Compilers-Lexer}}
+\fancyhead[C]{\textbf{UNAM - Group 5} \hspace{0.5cm} \textbf{Compilers-Parser}}
 \fancyhead[R]{\includegraphics[height=1.5cm]{izq.png}}
 \fancyfoot[C]{\thepage} 
 \renewcommand{\headrulewidth}{0.4pt} 
@@ -196,40 +196,580 @@ To fix this, an Adapter pattern was used. The class \texttt{PlyLexerAdapter} tak
 This way, the difference between the lexer and the parser is handled in one place, so both parts can work correctly without needing to change their original design. [4]
 
 
+\section{Development}
+
+\subsection{Implementación}
+
+El compilador siguio una arquitectura dividida en tres capas, donde de primeras tenemos 
+la capa lógica, en seguida tenemos la capa de presentación que es el frontend y por ultimo tenemos a 
+la capa de utilidades, para esto la capa lógica se compone de seis secciones, la primera es el analizador léxico, 
+el adaptador de tokens, las reglas gramaticales, las estructuras del AST, las reglas de validación semántica 
+y la fase principal que integra la logica por completo de análisis sintáctico y semántico.
+
+El flujo  sigue un pipeline se forma secuencial, donde primero, el analizador léxico 
+tokeniza el código fuente en C utilizando Pygments como base. 
+Despues de esto, un bloque secundario transforma la salida del lexer al formato requerido por PLY 
+(Python Lex-Yacc) y despues, el parser LALR(1) de PLY analiza los tokens 
+y construye el AST. Por ultimo, el módulo semántico pasa el AST aplicando las reglas de validación definidas.
 
 
+\subsection{Gramática}
 
-\section{Developmenmt}
+Esta gramática describe un subconjunto del lenguaje C, 
+soportando declaraciones de variables, asignaciones, estructuras de control 
+(\texttt{if}, \texttt{while}, \texttt{for}), operaciones aritméticas, lógicas y relacionales, 
+así como instrucciones de entrada/salida (\texttt{printf}, \texttt{scanf}). 
+El parser construido utiliza PLY para generar un analizador LALR(1) a partir de estas producciones.
 
-\subsection{Overview of the implementation}
+\subsubsection{Tokens terminales}
 
-\subsection{Grammatic}
+La gramática se basa en los siguientes conjuntos de tokens terminales y estos son 
+generados por el analizador léxico y transformados mediante un adaptador para ser compatibles con PLY:
+
+\begin{table}[H]
+\centering
+\caption{Tokens terminales de la gramática}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{gray!20}
+\textbf{Categoría} & \textbf{Tokens} \\
+\hline
+Tipos de dato & \texttt{INT}, \texttt{FLOAT}, \texttt{DOUBLE}, \texttt{CHAR} \\
+\hline
+Palabras reservadas & \texttt{IF}, \texttt{WHILE}, \texttt{FOR}, \texttt{PRINTF}, \texttt{SCANF} \\
+\hline
+Identificadores y valores & \texttt{IDENTIFIER}, \texttt{VALUE\_NUM}, \texttt{VALUE\_CHAR}, \texttt{TEXT\_STRING} \\
+\hline
+Operadores de asignación & \texttt{ASSIGN} (\texttt{=}), \texttt{ADD\_ASSIGN} (\texttt{+=}), \texttt{SUB\_ASSIGN} (\texttt{-=}), \texttt{DIV\_ASSIGN} (\texttt{/=}) \\
+\hline
+Operadores aritméticos & \texttt{PLUS}, \texttt{MINUS}, \texttt{TIMES}, \texttt{DIVIDE}, \texttt{MOD} \\
+\hline
+Operadores relacionales & \texttt{EQ}, \texttt{NE}, \texttt{LT}, \texttt{GT}, \texttt{LE}, \texttt{GE} \\
+\hline
+Operadores lógicos & \texttt{AND}, \texttt{OR}, \texttt{NOT} \\
+\hline
+Operadores unarios & \texttt{INC} (\texttt{++}), \texttt{DEC} (\texttt{-{}-}) \\
+\hline
+Puntuación & \texttt{SEMICOLON}, \texttt{COMMA}, \texttt{LPAREN}, \texttt{RPAREN}, \texttt{LBRACE}, \texttt{RBRACE} \\
+\hline
+Especial & \texttt{AMPERSAND} (\texttt{\&}) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Precedencia y asociatividad de operadores}
+
+Para resolver ambigüedades en la gramática, se definieron las siguientes reglas de precedencia que son 
+de menor a mayor prioridad:
+
+\begin{table}[H]
+\centering
+\caption{Reglas de precedencia de operadores}
+\begin{tabular}{|c|l|l|}
+\hline
+\rowcolor{gray!20}
+\textbf{Prioridad} & \textbf{Asociatividad} & \textbf{Operadores} \\
+\hline
+1 (menor) & Izquierda & \texttt{OR} (\texttt{||}) \\
+\hline
+2 & Izquierda & \texttt{AND} (\texttt{\&\&}) \\
+\hline
+3 & No asociativo & \texttt{EQ}, \texttt{NE}, \texttt{LT}, \texttt{GT}, \texttt{LE}, \texttt{GE} \\
+\hline
+4 & Izquierda & \texttt{PLUS}, \texttt{MINUS} \\
+\hline
+5 & Izquierda & \texttt{TIMES}, \texttt{DIVIDE}, \texttt{MOD} \\
+\hline
+6 (mayor) & Derecha & \texttt{NOT} (\texttt{!}) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Producciones de la gramática}
+
+Regresando a la gramatica original tenemos lo sigueinte:
+
+\begin{longtable}{c p{2.8cm} p{0.5cm} p{9cm}}
+\caption{Producciones de la gramática libre de contexto} \\
+\hline
+\rowcolor{gray!20}
+\textbf{R} & \textbf{No terminal} & & \textbf{Producción} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20}
+\textbf{R} & \textbf{No terminal} & & \textbf{Producción} \\
+\hline
+\endhead
+
+1 & \textit{program} & $\rightarrow$ & \textit{stmt\_list} \\[4pt]
+2 & \textit{stmt\_list} & $\rightarrow$ & \textit{stmt\_list} \; \textit{stmt} \\
+3 & & $|$ & \textit{stmt} \\[4pt]
+4 & \textit{stmt} & $\rightarrow$ & \textit{decl\_num} \\
+5 & & $|$ & \textit{decl\_char} \\
+6 & & $|$ & \textit{assign\_stmt} \\
+7 & & $|$ & \textit{if\_stmt} \\
+8 & & $|$ & \textit{while\_stmt} \\
+9 & & $|$ & \textit{for\_stmt} \\
+10 & & $|$ & \textit{print\_stmt} \\
+11 & & $|$ & \textit{scan\_stmt} \\
+12 & & $|$ & \textit{unary\_stmt} \\[4pt]
+13 & \textit{decl\_num} & $\rightarrow$ & \textit{type\_num} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{;}} \\
+14 & & $|$ & \textit{type\_num} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{=}} \; \textit{math\_expr} \; \textbf{\texttt{;}} \\[4pt]
+15 & \textit{decl\_char} & $\rightarrow$ & \textit{type\_char} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{;}} \\
+16 & & $|$ & \textit{type\_char} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{=}} \; \textbf{\texttt{VALUE\_CHAR}} \; \textbf{\texttt{;}} \\[4pt]
+17 & \textit{type\_num} & $\rightarrow$ & \textbf{\texttt{int}} \; $|$ \; \textbf{\texttt{float}} \; $|$ \; \textbf{\texttt{double}} \\[4pt]
+18 & \textit{type\_char} & $\rightarrow$ & \textbf{\texttt{char}} \\[4pt]
+19 & \textit{assign\_stmt} & $\rightarrow$ & \textbf{\texttt{IDENTIFIER}} \; \textit{assign\_expr\_op} \; \textit{math\_expr} \; \textbf{\texttt{;}} \\
+20 & & $|$ & \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{=}} \; \textbf{\texttt{VALUE\_CHAR}} \; \textbf{\texttt{;}} \\[4pt]
+21 & \textit{assign\_expr\_op} & $\rightarrow$ & \textbf{\texttt{=}} \; $|$ \; \textbf{\texttt{+=}} \; $|$ \; \textbf{\texttt{-=}} \; $|$ \; \textbf{\texttt{/=}} \\[4pt]
+22 & \textit{if\_stmt} & $\rightarrow$ & \textbf{\texttt{if}} \; \textbf{\texttt{(}} \; \textit{cond} \; \textbf{\texttt{)}} \; \textbf{\texttt{\{}} \; \textit{stmt\_list} \; \textbf{\texttt{\}}} \\[4pt]
+23 & \textit{while\_stmt} & $\rightarrow$ & \textbf{\texttt{while}} \; \textbf{\texttt{(}} \; \textit{cond} \; \textbf{\texttt{)}} \; \textbf{\texttt{\{}} \; \textit{stmt\_list} \; \textbf{\texttt{\}}} \\[4pt]
+24 & \textit{for\_stmt} & $\rightarrow$ & \textbf{\texttt{for}} \; \textbf{\texttt{(}} \; \textit{for\_init} \; \textbf{\texttt{;}} \; \textit{for\_cond} \; \textbf{\texttt{;}} \; \textit{for\_step} \; \textbf{\texttt{)}} \; \textbf{\texttt{\{}} \; \textit{stmt\_list} \; \textbf{\texttt{\}}} \\[4pt]
+25 & \textit{for\_init} & $\rightarrow$ & \textit{type\_num} \; \textbf{\texttt{IDENTIFIER}} \\
+26 & & $|$ & \textit{type\_num} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{=}} \; \textit{math\_expr} \\
+27 & & $|$ & \textbf{\texttt{IDENTIFIER}} \; \textit{assign\_expr\_op} \; \textit{math\_expr} \\
+28 & & $|$ & $\varepsilon$ \\[4pt]
+29 & \textit{for\_cond} & $\rightarrow$ & \textit{cond} \\
+30 & & $|$ & $\varepsilon$ \\[4pt]
+31 & \textit{for\_step} & $\rightarrow$ & \textit{inc\_dec\_op} \; \textbf{\texttt{IDENTIFIER}} \\
+32 & & $|$ & \textbf{\texttt{IDENTIFIER}} \; \textit{inc\_dec\_op} \\
+33 & & $|$ & \textbf{\texttt{IDENTIFIER}} \; \textit{assign\_expr\_op} \; \textit{math\_expr} \\
+34 & & $|$ & $\varepsilon$ \\[4pt]
+35 & \textit{print\_stmt} & $\rightarrow$ & \textbf{\texttt{printf}} \; \textbf{\texttt{(}} \; \textit{print\_args} \; \textbf{\texttt{)}} \; \textbf{\texttt{;}} \\[4pt]
+36 & \textit{print\_args} & $\rightarrow$ & \textbf{\texttt{TEXT\_STRING}} \\
+37 & & $|$ & \textbf{\texttt{TEXT\_STRING}} \; \textbf{\texttt{,}} \; \textit{id\_list} \\[4pt]
+38 & \textit{scan\_stmt} & $\rightarrow$ & \textbf{\texttt{scanf}} \; \textbf{\texttt{(}} \; \textbf{\texttt{TEXT\_STRING}} \; \textbf{\texttt{,}} \; \textbf{\texttt{\&}} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{)}} \; \textbf{\texttt{;}} \\[4pt]
+39 & \textit{id\_list} & $\rightarrow$ & \textit{id\_list} \; \textbf{\texttt{,}} \; \textbf{\texttt{IDENTIFIER}} \\
+40 & & $|$ & \textbf{\texttt{IDENTIFIER}} \\[4pt]
+41 & \textit{unary\_stmt} & $\rightarrow$ & \textit{inc\_dec\_op} \; \textbf{\texttt{IDENTIFIER}} \; \textbf{\texttt{;}} \\
+42 & & $|$ & \textbf{\texttt{IDENTIFIER}} \; \textit{inc\_dec\_op} \; \textbf{\texttt{;}} \\[4pt]
+43 & \textit{inc\_dec\_op} & $\rightarrow$ & \textbf{\texttt{++}} \; $|$ \; \textbf{\texttt{-{}-}} \\[4pt]
+44 & \textit{math\_expr} & $\rightarrow$ & \textit{math\_expr} \; \textbf{\texttt{+}} \; \textit{math\_expr} \\
+45 & & $|$ & \textit{math\_expr} \; \textbf{\texttt{-}} \; \textit{math\_expr} \\
+46 & & $|$ & \textit{math\_expr} \; \textbf{\texttt{*}} \; \textit{math\_expr} \\
+47 & & $|$ & \textit{math\_expr} \; \textbf{\texttt{/}} \; \textit{math\_expr} \\
+48 & & $|$ & \textit{math\_expr} \; \textbf{\texttt{\%}} \; \textit{math\_expr} \\
+49 & & $|$ & \textbf{\texttt{IDENTIFIER}} \\
+50 & & $|$ & \textbf{\texttt{VALUE\_NUM}} \\
+51 & & $|$ & \textbf{\texttt{(}} \; \textit{math\_expr} \; \textbf{\texttt{)}} \\[4pt]
+52 & \textit{cond} & $\rightarrow$ & \textit{cond} \; \textbf{\texttt{||}} \; \textit{cond} \\
+53 & & $|$ & \textit{cond} \; \textbf{\texttt{\&\&}} \; \textit{cond} \\
+54 & & $|$ & \textit{math\_expr} \; \textit{rel\_op} \; \textit{math\_expr} \\
+55 & & $|$ & \textbf{\texttt{!}} \; \textit{cond} \\
+56 & & $|$ & \textbf{\texttt{(}} \; \textit{cond} \; \textbf{\texttt{)}} \\
+57 & & $|$ & \textit{math\_expr} \\
+58 & & $|$ & \textbf{\texttt{VALUE\_CHAR}} \\[4pt]
+59 & \textit{rel\_op} & $\rightarrow$ & \textbf{\texttt{==}} \; $|$ \; \textbf{\texttt{!=}} \; $|$ \; \textbf{\texttt{<}} \; $|$ \; \textbf{\texttt{>}} \; $|$ \; \textbf{\texttt{<=}} \; $|$ \; \textbf{\texttt{>=}} \\[4pt]
+60 & \textit{empty} & $\rightarrow$ & $\varepsilon$ \\
+\hline
+\end{longtable}
+
+\subsubsection{Justificacion de las producciones}
+
+La gramática se compone de 25 no terminales 
+y 60 producciones que definen el lenguaje:
+\vspace{0.5cm}
+
+\textbf{Estructura del programa:} La Regla 1 define que un programa consiste en una lista de sentencias, la cual se construye de forma recursiva por la izquierda mediante las Reglas 2 y 3.
+
+\textbf{Sentencias:} De las Reglas de la 4 a la 12 establecen que cada sentencia puede ser una de nueve alternativas: declaración numérica, declaración de carácter, asignación, condicional \texttt{if}, ciclo \texttt{while}, ciclo \texttt{for}, impresión con \texttt{printf}, lectura con \texttt{scanf}.
+
+\textbf{Declaraciones:} De las Reglas de la 13 a la 14 definen declaraciones de variables numéricas (\texttt{int}, \texttt{float}, \texttt{double}), tanto simples como con inicialización. Para la 15 y 16 hacen lo mismo pero para el tipo carácter (Regla 18), donde la inicialización solo acepta literales de carácter.
+
+\textbf{Asignaciones:} La Regla 19 define la asignación con operadores simples o compuestos (Regla 21: \texttt{=}, \texttt{+=}, \texttt{-=}, \texttt{/=}) sobre la parte aritmetica y la Regla 20 permite la asignación directa de letras.
+
+\textbf{Estructuras de control:} Las Reglas 22 y 23 definen los bloques de control, como son el \texttt{if} y \texttt{while}, que requieren una condición entre paréntesis y un bloque que inicia y finaliza por medio de llaves. La Regla 24 define el ciclo \texttt{for} con tres partes separados por punto y coma: inicialización (Reglas 25--28), condición (Reglas 29--30) y paso (Reglas 31--34), cada uno de los cuales puede ser vacío ($\varepsilon$).
+
+\textbf{Entrada/Salida:} La Regla 35 indica que lleva la instrucción \texttt{printf}, cuyos argumentos se especifican en las Reglas 36--37. La Regla 38 indica que lleva \texttt{scanf}, que acepta una cadena de formato y un identificador donde tiene que seguir un \texttt{\&}. 
+
+\textbf{Expresiones aritméticas:} Las Reglas de la 44 a la 51 indican las expresiones matemáticas con cinco operadores, identificadores, constantes numéricas y agrupación con paréntesis. 
+
+\textbf{Condiciones:} Las Reglas de la 52 a la 58 definen las condiciones con operadores lógicos, negación, comparaciones relacionales (Regla 59), agrupación con paréntesis y la conversión de expresiones aritméticas en booleanos.
+
+\newpage
+\subsubsection{Árbol de parseo}
+
+Para dar un ejemplo del funcionamiento del LALR(1), se utiliza el árbol de parseo
+generado para la siguiente entrada:
+
+\begin{lstlisting}
+x = x + 1;
+\end{lstlisting}
+
+El parser LALR(1) implementado con PLY realiza desplazamientos shift de tokens hacia la pila y reduce cuando reconoce el lado derecho de una producción en la cima de la pila.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small, anchor=north},
+    edge from parent/.style={draw, -},
+    level distance=1.3cm,
+]
+\node {$program$}
+  child[sibling distance=8cm] { node {$stmt\_list$}
+    child[sibling distance=8cm] { node {$stmt$}
+      child[sibling distance=8cm] { node {$assign\_stmt$}
+        child[sibling distance=2.8cm] { node {\textbf{x}}
+          edge from parent node[left, font=\scriptsize] {}
+        }
+        child[sibling distance=2.8cm] { node {$assign\_expr\_op$}
+          child[sibling distance=1cm] { node {\textbf{=}} }
+        }
+        child[sibling distance=3.6cm] { node {$math\_expr$}
+          child[sibling distance=2cm] { node {$math\_expr$}
+            child[sibling distance=1cm] { node {\textbf{x}} }
+          }
+          child[sibling distance=1.2cm] { node {\textbf{+}} }
+          child[sibling distance=2cm] { node {$math\_expr$}
+            child[sibling distance=1cm] { node {\textbf{1}} }
+          }
+        }
+        child[sibling distance=2cm] { node {\textbf{;}} }
+      }
+    }
+  };
+\end{tikzpicture}
+\caption{Árbol de parseo para la entrada \texttt{x = x + 1;}}
+\label{fig:parse_tree}
+\end{figure}
+
+El proceso de funcionamiento del bottom-up para esta entrada es de la siguiente manera, donde primero
+el analizador desplaza el token \texttt{x} hacia la pila, despues desplaza el token \texttt{=}
+y lo reduce al no terminal haciendo uso de la Regla 21. 
+Despues desplaza el segundo token \texttt{x} y lo reduce a \textit{math\_expr} por medio de la Regla 49. 
+Luego desplaza a la \texttt{+} y al token \texttt{1}, el cual se reduce a \textit{math\_expr} por la Regla 50.
+
+En este punto, el parser tiene en la cima de la pila los elementos:
+
+$$math\_expr \; \texttt{+} \; math\_expr$$ 
+
+Que es lo mismo que la parte del lado derecho de la Regla 44.
+
+\newpage
+
+Con esto dicho, se aplica esta reducción lo cual genera un nodo \textit{math\_expr} 
+que representa la expresión $x + 1$. Por ultimo se desplaza el token \texttt{;} 
+y la pila contiene los elementos 
+
+$$\texttt{IDENTIFIER} \; assign\_expr\_op \; math\_expr \; \texttt{;}$$ 
+
+Y esto es lo mismo que con la Regla 19 y se aplica esta reducción creando el nodo \textit{assign\_stmt}, 
+el cual se reduce a \textit{stmt} por la Regla 6, luego a \textit{stmt\_list} por la Regla 3, 
+y finalmente al símbolo inicial \textit{program} mediante la Regla 1.
+
+\subsection{Traducción Dirigida por la Sintaxis (SDT)}
+
+La Traducción Dirigida por el (SDT \textit{Syntax-Directed Translation}) es que esta enlaza las reglas semánticas a cada producción de la gramática. 
+
+Para esto, con la forma de trabajo ya establecida, podemos implementar y presentar 
+las reglas de SDT para cada producción, donde:
+
+$SymTable$ representa la tabla de símbolos. 
+
+\textit{.type} es el atributo de tipo inferido.
+
+\textit{.node} es el nodo AST generado.
+
+\subsubsection{Reglas SDT -- Estructura del programa}
+
+\begin{align*}
+program &\rightarrow stmt\_list \quad \{program.node = \text{make\_node}(\text{``program''}, stmt\_list.nodes)\} \\[8pt]
+stmt\_list &\rightarrow stmt\_list_1 \; stmt \quad \{stmt\_list.nodes = stmt\_list_1.nodes \cup \{stmt.node\}\} \\[4pt]
+stmt\_list &\rightarrow stmt \quad \{stmt\_list.nodes = \{stmt.node\}\} \\[8pt]
+stmt &\rightarrow decl\_num \mid decl\_char \mid assign\_stmt \mid if\_stmt \\
+     &\quad\mid while\_stmt \mid for\_stmt \mid print\_stmt \mid scan\_stmt \\
+     &\quad\mid unary\_stmt \quad \{stmt.node = X.node\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Declaraciones}
+
+\begin{align*}
+decl\_num &\rightarrow type\_num \; \mathbf{id} \; \mathbf{;} \\
+         &\quad \{\textbf{if } SymTable.\text{declare}(\mathbf{id}.name, type\_num.type) \textbf{ then } ok \\
+         &\quad \textbf{ else } \text{error}(\text{``redeclaración de variable''})\} \\[10pt]
+decl\_num &\rightarrow type\_num \; \mathbf{id} \; \mathbf{=} \; math\_expr \; \mathbf{;} \\
+         &\quad \{\textbf{if } SymTable.\text{declare}(\mathbf{id}.name, type\_num.type) \\
+         &\quad \textbf{ then if } \text{compatible}(type\_num.type, math\_expr.type) \textbf{ then } ok \\
+         &\quad \textbf{ else } \text{error}(\text{``tipo incompatible en asignación''}) \\
+         &\quad \textbf{ else } \text{error}(\text{``redeclaración de variable''})\} \\[10pt]
+decl\_char &\rightarrow type\_char \; \mathbf{id} \; \mathbf{;} \\
+          &\quad \{\textbf{if } SymTable.\text{declare}(\mathbf{id}.name, \text{``char''}) \textbf{ then } ok \\
+          &\quad \textbf{ else } \text{error}(\text{``redeclaración''})\} \\[10pt]
+decl\_char &\rightarrow type\_char \; \mathbf{id} \; \mathbf{=} \; \mathbf{VALUE\_CHAR} \; \mathbf{;} \\
+          &\quad \{\textbf{if } SymTable.\text{declare}(\mathbf{id}.name, \text{``char''}) \textbf{ then } ok \\
+          &\quad \textbf{ else } \text{error}(\text{``redeclaración''})\} \\[10pt]
+type\_num &\rightarrow \mathbf{int} \quad \{type\_num.type = \text{``int''}\} \\
+type\_num &\rightarrow \mathbf{float} \quad \{type\_num.type = \text{``float''}\} \\
+type\_num &\rightarrow \mathbf{double} \quad \{type\_num.type = \text{``double''}\} \\[6pt]
+type\_char &\rightarrow \mathbf{char} \quad \{type\_char.type = \text{``char''}\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Asignación}
+
+\begin{align*}
+assign\_stmt &\rightarrow \mathbf{id} \; assign\_op \; math\_expr \; \mathbf{;} \\
+            &\quad \{\textbf{if } SymTable.\text{lookup}(\mathbf{id}.name) = \text{null} \\
+            &\quad \textbf{ then } \text{error}(\text{``variable no declarada''}) \\
+            &\quad \textbf{ else if } assign\_op.op = \text{``=''} \\
+            &\quad\quad \textbf{ then if } \text{compatible}(SymTable.\text{lookup}(\mathbf{id}.name), math\_expr.type) \\
+            &\quad\quad \textbf{ then } ok \textbf{ else } \text{error}(\text{``tipo incompatible''}) \\
+            &\quad \textbf{ else if } assign\_op.op \in \{\text{``+=''}, \text{``-=''}, \text{``/=''}\} \\
+            &\quad\quad \textbf{ then if } \text{numeric}(SymTable.\text{lookup}(\mathbf{id}.name)) \land \text{numeric}(math\_expr.type) \\
+            &\quad\quad \textbf{ then } ok \textbf{ else } \text{error}(\text{``operandos no numéricos''})\} \\[10pt]
+assign\_stmt &\rightarrow \mathbf{id} \; \mathbf{=} \; \mathbf{VALUE\_CHAR} \; \mathbf{;} \\
+            &\quad \{\textbf{if } SymTable.\text{lookup}(\mathbf{id}.name) = \text{null} \\
+            &\quad \textbf{ then } \text{error}(\text{``variable no declarada''}) \\
+            &\quad \textbf{ else if } SymTable.\text{lookup}(\mathbf{id}.name) = \text{``char''} \textbf{ then } ok \\
+            &\quad \textbf{ else } \text{error}(\text{``tipo incompatible''})\} \\[10pt]
+assign\_op &\rightarrow \mathbf{=} \;\{assign\_op.op = \text{``=''}\} \\
+           &\mid \mathbf{+=} \;\{assign\_op.op = \text{``+=''}\} \\
+           &\mid \mathbf{-=} \;\{assign\_op.op = \text{``-=''}\} \\
+           &\mid \mathbf{/=} \;\{assign\_op.op = \text{``/=''}\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Expresiones aritméticas}
+
+\begin{align*}
+math\_expr &\rightarrow math\_expr_1 \; \mathbf{+} \; math\_expr_2 \\
+           &\quad \{\textbf{if } \text{numeric}(math\_expr_1.type) \land \text{numeric}(math\_expr_2.type) \\
+           &\quad \textbf{ then } math\_expr.type = \text{promote}(math\_expr_1.type, math\_expr_2.type) \\
+           &\quad \textbf{ else } \text{error}(\text{``operandos no numéricos''})\} \\[6pt]
+math\_expr &\rightarrow math\_expr_1 \; \mathbf{-} \; math\_expr_2 \\
+           &\quad \{math\_expr.type = \text{promote}(math\_expr_1.type, math\_expr_2.type) \text{ (misma regla)}\} \\[6pt]
+math\_expr &\rightarrow math\_expr_1 \; \mathbf{*} \; math\_expr_2 \\
+           &\quad \{math\_expr.type = \text{promote}(math\_expr_1.type, math\_expr_2.type) \text{ (misma regla)}\} \\[6pt]
+math\_expr &\rightarrow math\_expr_1 \; \mathbf{/} \; math\_expr_2 \\
+           &\quad \{math\_expr.type = \text{promote}(math\_expr_1.type, math\_expr_2.type) \text{ (misma regla)}\} \\[6pt]
+math\_expr &\rightarrow math\_expr_1 \; \mathbf{\%} \; math\_expr_2 \\
+           &\quad \{math\_expr.type = \text{promote}(math\_expr_1.type, math\_expr_2.type) \text{ (misma regla)}\} \\[10pt]
+math\_expr &\rightarrow \mathbf{id} \quad \{\textbf{if } SymTable.\text{lookup}(\mathbf{id}.name) \neq \text{null} \\
+           &\quad \textbf{ then } math\_expr.type = SymTable.\text{lookup}(\mathbf{id}.name) \\
+           &\quad \textbf{ else } \text{error}(\text{``variable no declarada''})\} \\[6pt]
+math\_expr &\rightarrow \mathbf{VALUE\_NUM} \quad \{math\_expr.type = \text{infer}(\mathbf{VALUE\_NUM}.value)\} \\[6pt]
+math\_expr &\rightarrow \mathbf{(} \; math\_expr_1 \; \mathbf{)} \quad \{math\_expr.type = math\_expr_1.type\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Condiciones}
+
+\begin{align*}
+cond &\rightarrow cond_1 \; \mathbf{||} \; cond_2 \\
+     &\quad \{\textbf{if } \text{logical}(cond_1.type) \land \text{logical}(cond_2.type) \\
+     &\quad \textbf{ then } cond.type = \text{``bool''} \\
+     &\quad \textbf{ else } \text{error}(\text{``operandos no válidos para OR lógico''})\} \\[6pt]
+cond &\rightarrow cond_1 \; \mathbf{\&\&} \; cond_2 \\
+     &\quad \{\textbf{if } \text{logical}(cond_1.type) \land \text{logical}(cond_2.type) \\
+     &\quad \textbf{ then } cond.type = \text{``bool''} \\
+     &\quad \textbf{ else } \text{error}(\text{``operandos no válidos para AND lógico''})\} \\[6pt]
+cond &\rightarrow math\_expr_1 \; rel\_op \; math\_expr_2 \\
+     &\quad \{\textbf{if } \text{numeric}(math\_expr_1.type) \land \text{numeric}(math\_expr_2.type) \\
+     &\quad \textbf{ then } cond.type = \text{``bool''} \\
+     &\quad \textbf{ else } \text{error}(\text{``operandos no numéricos en comparación''})\} \\[6pt]
+cond &\rightarrow \mathbf{!} \; cond_1 \\
+     &\quad \{\textbf{if } \text{logical}(cond_1.type) \textbf{ then } cond.type = \text{``bool''} \\
+     &\quad \textbf{ else } \text{error}(\text{``operando no válido para negación''})\} \\[6pt]
+cond &\rightarrow \mathbf{(} \; cond_1 \; \mathbf{)} \quad \{cond.type = cond_1.type\} \\[6pt]
+cond &\rightarrow math\_expr \quad \{cond.type = math\_expr.type\} \\[6pt]
+cond &\rightarrow \mathbf{VALUE\_CHAR} \quad \{cond.type = \text{``char''}\}
+\end{align*}
+
+Donde la función $\text{logical}(t)$ devuelve verdadero si $t \in \{\text{``bool'', ``int'', ``float'', ``double'', ``char''}\}$, son los tipos de dato que se evaluan como 
+funcion logica.
+
+\begin{align*}
+rel\_op &\rightarrow \mathbf{==} \;\{rel\_op.op = \text{``==''}\} \;\mid\; \mathbf{!=} \;\{rel\_op.op = \text{``!=''}\} \\
+        &\;\mid\; \mathbf{<} \;\{rel\_op.op = \text{``<''}\} \;\mid\; \mathbf{>} \;\{rel\_op.op = \text{``>''}\} \\
+        &\;\mid\; \mathbf{<=} \;\{rel\_op.op = \text{``<=''}\} \;\mid\; \mathbf{>=} \;\{rel\_op.op = \text{``>=''}\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Estructuras de control}
+
+\begin{align*}
+if\_stmt &\rightarrow \mathbf{if} \; \mathbf{(} \; cond \; \mathbf{)} \; \mathbf{\{} \; stmt\_list \; \mathbf{\}} \\
+        &\quad \{\textbf{if } \text{logical}(cond.type) \textbf{ then } ok \\
+        &\quad \textbf{ else } \text{error}(\text{``condición no evaluable en if''})\} \\[10pt]
+while\_stmt &\rightarrow \mathbf{while} \; \mathbf{(} \; cond \; \mathbf{)} \; \mathbf{\{} \; stmt\_list \; \mathbf{\}} \\
+           &\quad \{\textbf{if } \text{logical}(cond.type) \textbf{ then } ok \\
+           &\quad \textbf{ else } \text{error}(\text{``condición no evaluable en while''})\} \\[10pt]
+for\_stmt &\rightarrow \mathbf{for} \; \mathbf{(} \; for\_init \; \mathbf{;} \; for\_cond \; \mathbf{;} \; for\_step \; \mathbf{)} \; \mathbf{\{} \; stmt\_list \; \mathbf{\}} \\
+         &\quad \{SymTable.\text{enter\_scope}(); \\
+         &\quad \text{evaluar}(for\_init); \\
+         &\quad \textbf{if } for\_cond \neq \varepsilon \land \neg\text{logical}(for\_cond.type) \\
+         &\quad \textbf{ then } \text{error}(\text{``condición no evaluable en for''}); \\
+         &\quad \text{evaluar}(for\_step); \; \text{evaluar}(stmt\_list); \\
+         &\quad SymTable.\text{exit\_scope}()\}
+\end{align*}
+
+\subsubsection{Reglas SDT -- Entrada/Salida}
+
+\begin{align*}
+print\_stmt &\rightarrow \mathbf{printf} \; \mathbf{(} \; print\_args \; \mathbf{)} \; \mathbf{;} \\
+           &\quad \{\text{sea } specs = \text{extract\_specs}(\mathbf{TEXT\_STRING}.value) \\
+           &\quad \textbf{if } |specs| \neq |id\_list| \textbf{ then } \text{error}(\text{``cantidad de argumentos incorrecta''}) \\
+           &\quad \textbf{else } \forall (spec_i, id_i) \in \text{zip}(specs, id\_list): \\
+           &\quad\quad \textbf{if } SymTable.\text{lookup}(id_i) = \text{null} \\
+           &\quad\quad \textbf{ then } \text{error}(\text{``variable no declarada''}) \\
+           &\quad\quad \textbf{ else if } \neg\text{format\_ok}(SymTable.\text{lookup}(id_i), spec_i) \\
+           &\quad\quad \textbf{ then } \text{error}(\text{``formato incompatible''})\} \\[10pt]
+scan\_stmt &\rightarrow \mathbf{scanf} \; \mathbf{(} \; \mathbf{TEXT\_STRING} \; \mathbf{,} \; \mathbf{\&} \; \mathbf{id} \; \mathbf{)} \; \mathbf{;} \\
+          &\quad \{\textbf{if } SymTable.\text{lookup}(\mathbf{id}.name) = \text{null} \\
+          &\quad \textbf{ then } \text{error}(\text{``variable no declarada''}) \\
+          &\quad \textbf{ else } \text{sea } specs = \text{extract\_specs}(\mathbf{TEXT\_STRING}.value) \\
+          &\quad \textbf{if } |specs| \neq 1 \textbf{ then } \text{error}(\text{``se espera exactamente un especificador''}) \\
+          &\quad \textbf{ else if } \neg\text{format\_ok}(SymTable.\text{lookup}(\mathbf{id}.name), specs[0]) \\
+          &\quad \textbf{ then } \text{error}(\text{``formato incompatible con tipo de variable''})\}
+\end{align*}
+
+Donde la función $\text{format\_ok}$ verifica que sean compatibles entre un tipo de variable y un especificador de formato:
+\texttt{\%d}/\texttt{\%i} necesita a una variable \texttt{int}, \texttt{\%f} necesita a una variable \texttt{float}, por ponerlos de ejemplo.
+
+\subsubsection{Reglas SDT -- Sentencias unarias}
+
+\begin{align*}
+unary\_stmt &\rightarrow inc\_dec\_op \; \mathbf{id} \; \mathbf{;} \\
+           &\quad \{\textbf{if } SymTable.\text{lookup}(\mathbf{id}.name) = \text{null} \\
+           &\quad \textbf{ then } \text{error}(\text{``variable no declarada''}) \\
+           &\quad \textbf{ else if } \neg\text{numeric}(SymTable.\text{lookup}(\mathbf{id}.name)) \\
+           &\quad \textbf{ then } \text{error}(\text{``operador unario requiere tipo numérico''})\} \\[6pt]
+unary\_stmt &\rightarrow \mathbf{id} \; inc\_dec\_op \; \mathbf{;} \quad \text{(misma regla semántica)} \\[8pt]
+inc\_dec\_op &\rightarrow \mathbf{++} \;\{inc\_dec\_op.op = \text{``++''}\} \\
+            &\;\mid\; \mathbf{-{}-} \;\{inc\_dec\_op.op = \text{``-{}-''}\}
+\end{align*}
 
 
+\subsection{Análisis semántico}
 
-\subsection{Input/Output and execution}
+El análisis semántico es la fase siguiente del sintáctico,
+donde este recibe el AST generado y recorriéndolo de forma recursiva para aplicar las reglas de validación.
+la parte fundamental es la tabla de simbolos y unas funciones auxiliares que permiten inferir tipos, 
+verificar compatibilidad y validar las construcciones del lenguaje.
+
+\subsubsection{Tabla de símbolos}
+
+La tabla de símbolos se implementa como una pila de diccionarios,
+donde cada diccionario representa un (\textit{scope}) de variables.
+Cuando esta parte entra a un bloque de código como lo es el bloque de un \texttt{if}, \texttt{while} o \texttt{for}, 
+se crea un nuevo scope apilando un diccionario vacío. 
+Al salir del bloque, se elimina el scope superior, despues las operaciones principales de la tabla son:
+\textit{declare}, que registra una variable verificando que no exista redeclaración, 
+\textit{lookup}, que busca una variable recorriendo los scopes desde el más interno hasta el más externo, 
+y \textit{snapshot}, que hace que tengamos una vista combinada de todas las variables visibles en 
+el punto actual del análisis, esto para los mensajes de error del compilador.
+
+\subsubsection{Reglas semánticas implementadas}
+
+Las reglas semánticas que el compilador valida son: 
+\begin{itemize}
+    \item Primero, que toda variable sea declarada antes de ser utilizada en cualquier expresión o instrucción de entrada/salida.
+    \item Segundo, la compatibilidad de tipos en las asignaciones donde al asignar un \texttt{int} a un \texttt{float} es válido, pero no al revés.
+    \item Tercero, que las operaciones aritméticas requieren operandos numéricos y las operaciones lógicas requieren tipos evaluables como booleanos. 
+    \item Cuarto, la validación de las instrucciones \texttt{printf} y \texttt{scanf}, donde se revusa que la cantidad de especificadores de formato sea la misma
+    (\texttt{\%d} con \texttt{int}, \texttt{\%f} con \texttt{float}/\texttt{double}, \texttt{\%c} con \texttt{char}).
+    \item  Quinto, que las condiciones utilizadas en las estructuras \texttt{if}, \texttt{while} y \texttt{for} sean expresiones que evaluen como valores booleanos de true o false.
+\end{itemize}
 
 
-\subsection{Relation with the propose CFG}
+\subsubsection{Funciones auxiliares de inferencia de tipos}
 
-\subsection{Tests realized}
+El parte de la semantica utiliza funciones auxiliares para la inferencia y verificación de tipos.
+La función de inferencia de tipo literal determina si un valor es de tipo carácter, esto lo hace por medio de ver su inicio y final, viendo si tiene comillas simples
+o cadena si está delimitado por comillas dobles. 
 
+La función de inferencia de tipo constante determina si un número es entero o flotante según la presencia de punto decimal. 
+
+La función de verificación numérica valida si un tipo pertenece a alguno de los tipos numéricos como lo son el
+(\texttt{int}, \texttt{float}, \texttt{double}, \texttt{char}). 
+
+La función de evaluabilidad lógica verifica si un tipo puede usarse como condición booleana, 
+donde ademas acepta el tipo \texttt{bool}. 
+
+La función de compatibilidad de asignación implementa la revision de que tipo de datos aceptan otro tipo de datos: \texttt{double} acepta \texttt{float}, \texttt{int} y \texttt{char}; \texttt{float} acepta \texttt{int} y \texttt{char}; \texttt{int} acepta \texttt{char}. 
+
+La función de extracción de especificadores de formato revisa las cadenas de formato de 
+\texttt{printf}/\texttt{scanf} para identificar los tipos de datos que se van tanto a leer como a imprimir
+(\texttt{\%d}, \texttt{\%f}, \texttt{\%c}, \texttt{\%s}) ignorando los escapes.
+
+\subsubsection{Proceso de recorrido del AST}
+
+El análisis semántico se realiza mediante dos funciones recursivas que recorren el AST. 
+
+La primera función determina el tipo de una expresión esto lo hace evaluando recursivamente los arboles generados a 
+apartir del arbol principal, esto para identificadores, consulta la tabla de símbolos,
+para constantes, infiere el tipo a partir del valor, pero para operaciones binarias, 
+verifica que ambos operandos sean válidos y aplica la promoción de tipos. 
+
+La segunda función recorre cada nodo del AST aplicando las reglas semánticas correspondientes según el tipo de nodo: 
+para declaraciones, registra la variable en la tabla de símbolos y verifica la compatibilidad del inicializador, pero para asignaciones,
+verifica que la variable exista y que el tipo sea compatible, despues 
+para estructuras de control, revisa que la condición es correcta, ahora para la parte de instrucciones de E/S,
+verifica los especificadores de formato y los argumentos.
+
+
+\subsection{Entrada/Salida y ejecución}
+
+El programa soporta dos modos de ejecución: por línea de comandos (modo terminal) y mediante una interfaz gráfica de usuario implementada con Streamlit.
+
+En el modo terminal, el programa presenta un menú interactivo donde el usuario puede elegir entre ingresar código C directamente por teclado o cargar un archivo desde la carpeta de entradas. El programa procesa el análisis léxico, sintáctico y semántico de manera secuencial, y muestra un reporte detallado que incluye la tabla de tokens, los tokens agrupados por tipo, el resultado del análisis sintáctico, los errores encontrados (si los hay) y la traza del análisis semántico. En caso de que se detecte un error sintáctico, el análisis semántico no se ejecuta, ya que no es posible construir un AST válido. El programa permite ejecutar múltiples análisis de forma consecutiva sin reiniciar la aplicación.
+
+En el modo de interfaz gráfica, se ofrece la misma funcionalidad pero con una presentación más visual e interactiva. Cada fase del análisis se puede visualizar de forma organizada con colores y formatos que facilitan la lectura. Adicionalmente, la UI permite visualizar el grafo del AST generado, el cual soporta zoom para examinar árboles de gran tamaño.
+
+\subsection{Pruebas realizadas}
+
+La siguiente tabla resume todos los casos del compilador: el caso válido, los casos con errores semánticos y los casos con errores sintácticos.
+
+\begin{longtable}{|p{3.8cm}|p{3.5cm}|p{6.5cm}|}
+\caption{Clasificación de errores detectados por el parser y el sistema SDT.} \label{tab:errores} \\
+\hline
+\rowcolor{gray!20}
+\textbf{Tipo de error} & \textbf{Ejemplo} & \textbf{Descripción} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20}
+\textbf{Tipo de error} & \textbf{Ejemplo} & \textbf{Descripción} \\
+\hline
+\endhead
+Caso válido. Programa integrado &
+\texttt{int x = 1;} \newline \texttt{float y = 2;} \newline \texttt{char c = 'a';} \newline \texttt{x = x + 1;} \newline \texttt{y = y + x;} \newline \texttt{if (x < y \&\& y > 0) \{} \newline \texttt{\quad x += 1;} \newline \texttt{\}} \newline \texttt{printf("\%d \%f \%c", x, y, c);} \newline \texttt{scanf("\%d", \&x);} &
+Declaraciones de tres tipos distintos (Reglas 14, 16), asignaciones simples y compuestas (Regla 19), expresiones aritméticas con promoción de tipos (Regla 44), condicional con operadores lógicos y relacionales (Reglas 22, 53, 54), y E/S con múltiples especificadores de formato (Reglas 35, 38). La tabla de símbolos registra \texttt{x:int}, \texttt{y:float}, \texttt{c:char}. Resultado: \textbf{Sintaxis VÁLIDA, Semántica VÁLIDA}. \\
+\hline
+Error sintáctico. Declaración incompleta &
+\texttt{int x = ;} &
+Falta la expresión de inicialización antes del punto y coma. El parser reporta: \texttt{Syntax error near ';' (token SEMICOLON) at line 1}. No se genera AST y el análisis semántico no se ejecuta. \\
+\hline
+Error sintáctico. Estructura de control sin paréntesis &
+\texttt{int x = 1;} \newline \texttt{if x > 0 \{} \newline \texttt{\quad x = x + 1;} \newline \texttt{\}} &
+La sentencia \texttt{if} omite los paréntesis obligatorios alrededor de la condición. El parser reporta: \texttt{Syntax error near 'x' (token IDENTIFIER) at line 2}. La Regla 22 requiere explícitamente los tokens \texttt{LPAREN} y \texttt{RPAREN}. \\
+\hline
+Error semántico. Variable no declarada &
+\texttt{int x = 1;} \newline \texttt{y = x + 2;} &
+La variable \texttt{y} se utiliza en una asignación sin haber sido declarada previamente. La sintaxis es válida según la Regla 19, pero al recorrer el AST la tabla de símbolos no encuentra \texttt{y}. Se reporta: \texttt{Semantic error: variable 'y' not declared at line 2}. \\
+\hline
+Error semántico. Tipo incompatible en asignación &
+\texttt{char c = 'a';} \newline \texttt{c = 25;} &
+Se intenta asignar un valor entero (\texttt{int}) a una variable de tipo \texttt{char}. La función de compatibilidad rechaza la asignación ya que \texttt{char} no acepta \texttt{int} en la jerarquía de promoción. Se reporta: \texttt{Semantic error: cannot assign 'int' to 'char' at line 2}. \\
+\hline
+Error semántico. Variable no declarada en condición &
+\texttt{int x = 1;} \newline \texttt{if (z > 0 \&\& x) \{} \newline \texttt{\quad x = x + 1;} \newline \texttt{\}} &
+La condición del \texttt{if} referencia la variable \texttt{z} que no fue declarada. La sintaxis es válida según la Regla 22, pero al evaluar la condición (Regla 54), la búsqueda de \texttt{z} en la tabla de símbolos falla. Se reporta: \texttt{Semantic error: variable 'z' not declared at line 2}. \\
+\hline
+Error semántico. Argumentos de \texttt{printf} &
+\texttt{int x = 10;} \newline \texttt{printf("\%d \%d", x);} &
+La cadena de formato contiene dos especificadores (\texttt{\%d \%d}), pero solo se proporciona un argumento (\texttt{x}). La regla SDT de \texttt{printf} extrae los especificadores y verifica la correspondencia. Se reporta: \texttt{Semantic error: printf expected 2 args but got 1 at line 2}. \\
+\hline
+Error semántico. Formato incompatible en \texttt{scanf} &
+\texttt{char c = 'a';} \newline \texttt{scanf("\%d", \&c);} &
+El especificador \texttt{\%d} requiere una variable de tipo \texttt{int}, pero \texttt{c} fue declarada como \texttt{char}. La función de compatibilidad de formato verifica que \texttt{\%d} solo es compatible con \texttt{int}. Se reporta: \texttt{Semantic error: scanf format '\%d' incompatible with 'char' at line 2}. \\
+\hline
+Error semántico. Condición con variable no declarada &
+\texttt{int x = 1;} \newline \texttt{if (q > 0) \{} \newline \texttt{\quad x = x + 1;} \newline \texttt{\}} &
+La variable \texttt{q} no existe en la tabla de símbolos. Al evaluar la condición del \texttt{if}, la búsqueda falla antes de poder verificar la operación relacional. Se reporta: \texttt{Semantic error: variable 'q' not declared at line 2}. \\
+\hline
+\end{longtable}
+
+Los nueve casos de prueba producen exactamente el resultado esperado. En los casos con error sintáctico, el análisis semántico no se ejecuta ya que no es posible construir un AST válido. En todos los casos semánticos, la sintaxis es válida y el error es detectado correctamente por las reglas SDT durante el recorrido del AST, generando mensajes que incluyen el tipo de error, la variable o token involucrado y el número de línea correspondiente.
 
 \section{Results}
-
-\subsection{Input from keyboard}
-
-
-\subsection{Input from file}
-
-
-\subsection{Lexical Analysis in Terminal}
-
-\subsection{Grouping of Tokens by Type}
-
-\subsection{Code Visualization with Token Highlighting}
-
-\subsection{Exporting Results}
 
 
 \section{Conclusions}
