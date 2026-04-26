@@ -1,115 +1,192 @@
+/* ============================================================
+   C-Reload — Theme-aware styles (light + dark)
+   Theme detected via JS → html[data-cr-theme="dark"]
+   ============================================================ */
+
+/* ---------- Google Fonts (loaded in app.py) ---------- */
+
+/* ---------- design tokens (light — default) ---------- */
 :root {
-    --bg: #f2efe7;
-    --ink: #1f2a37;
-    --accent: #0f766e;
-    --accent-soft: #c7ebe7;
-    --danger: #b91c1c;
-    --ok: #166534;
+    --cr-bg: #f2efe7;
+    --cr-surface: rgba(255,255,255,0.82);
+    --cr-surface-solid: #ffffff;
+    --cr-ink: #1f2a37;
+    --cr-ink-soft: #5a5f66;
+    --cr-border: #e0ddd5;
+    --cr-accent: #0055ff;
+    --cr-accent-glow: rgba(0,85,255,0.25);
+    --cr-ok: #166534;
+    --cr-ok-bg: var(--secondary-background-color);
+    --cr-ok-border: #b8e4c8;
+    --cr-fail: #b91c1c;
+    --cr-ok-bg: var(--secondary-background-color);
+    --cr-fail-border: #efc1c1;
+    --cr-badge-green: #d1fae5;
+    --cr-badge-blue: #dbeafe;
+    --cr-badge-yellow: #fef3c7;
+    --cr-badge-gray: #f3f4f6;
+    --cr-select-bg: #f0f2f6;
+    --cr-select-text: #1f2a37;
+    --cr-title-from: #0044ff;
+    --cr-title-mid: #0055ff;
+    --cr-title-to: #0011aa;
+    --cr-edge-color: #8A8886;
 }
 
+/* ---------- dark overrides (set by JS) ---------- */
+html[data-cr-theme="dark"] {
+    --cr-bg: #0e1117;
+    --cr-surface: rgba(30,33,44,0.85);
+    --cr-surface-solid: #1e212c;
+    --cr-ink: #e4e6eb;
+    --cr-ink-soft: #a0a4ab;
+    --cr-border: #2e3340;
+    --cr-accent: #4d8dff;
+    --cr-accent-glow: rgba(77,141,255,0.30);
+    --cr-ok: #4ade80;
+    --cr-ok-bg: #0a1a12;
+    --cr-ok-border: rgba(74,222,128,0.30);
+    --cr-fail: #f87171;
+    --cr-fail-bg: rgba(248,113,113,0.10);
+    --cr-fail-border: rgba(248,113,113,0.30);
+    --cr-badge-green: rgba(74,222,128,0.15);
+    --cr-badge-blue: rgba(96,165,250,0.15);
+    --cr-badge-yellow: rgba(251,191,36,0.15);
+    --cr-badge-gray: rgba(156,163,175,0.12);
+    --cr-select-bg: #262a34;
+    --cr-select-text: #e4e6eb;
+    --cr-title-from: #a5b4fc;
+    --cr-title-mid: #4d8dff;
+    --cr-title-to: #818cf8;
+    --cr-edge-color: #6b7280;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-24px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.85); }
+    60%  { transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 var(--cr-accent-glow); }
+    50%      { box-shadow: 0 0 18px 4px var(--cr-accent-glow); }
+}
+
+/* ---------- page layout ---------- */
 .main {
-    background: radial-gradient(circle at 10% 10%, #fff9e8, var(--bg) 45%);
+    animation: fadeIn 0.5s ease;
 }
 
 .block-container {
     padding-top: 1.2rem;
-    max-width: 1100px;
+    max-width: 1150px;
 }
 
 h1, h2, h3 {
-    color: var(--ink);
     letter-spacing: 0.3px;
 }
 
-/* Buttom Type C-Reload */
+/* ---------- project title ---------- */
+.project-title {
+    font-size: 4.5rem; 
+    font-weight: 900; 
+    letter-spacing: -1.5px; 
+    
+    background: linear-gradient(180deg, #ffffff 5%, #0044ff 60%, #0011aa 100%);
+    
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    
+    line-height: 1.2;
+    padding-top: 15px; 
+    padding-bottom: 5px;
+    margin-bottom: -15px; 
+}
+div.stMarkdown h1 {
+    margin-top: 0px !important;
+    animation: slideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.08s both;
+}
+
+@media (max-width: 760px) {
+    .project-title { font-size: 3rem; }
+}
+
+/* ---------- columns animation ---------- */
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+    animation: slideInLeft 0.6s cubic-bezier(0.22,1,0.36,1) 0.15s both;
+}
+
+/* ---------- analyze button ---------- */
 .stButton > button {
-    /* Gradient */
-    background: linear-gradient(135deg, #0077ff 0%, #0044ff 100%) !important;
+    background: linear-gradient(135deg, #0077ff 0%, var(--cr-accent) 100%) !important;
     color: white !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     border: none !important;
     font-weight: 800 !important;
     letter-spacing: 0.5px !important;
     text-transform: uppercase !important;
-    
     height: 48px !important;
     min-height: 48px !important;
-    
-    /* Transition */
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 15px rgba(0, 68, 255, 0.2) !important;
+    transition: all 0.35s cubic-bezier(0.22,1,0.36,1) !important;
+    box-shadow: 0 4px 16px var(--cr-accent-glow) !important;
+    position: relative;
+    overflow: hidden;
 }
-
 .stButton > button:hover {
-    background: linear-gradient(135deg, #0088ff 0%, #0055ff 100%) !important;
-    box-shadow: 0 6px 20px rgba(0, 119, 255, 0.4) !important;
-    transform: translateY(-2px) !important;
-    color: white !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 28px var(--cr-accent-glow) !important;
+    filter: brightness(1.1);
 }
-
 .stButton > button:active {
-    transform: translateY(0px) !important;
-    box-shadow: 0 2px 10px rgba(0, 68, 255, 0.2) !important;
-}
-.status-ok {
-    color: var(--ok);
-    font-weight: 700;
+    transform: translateY(0) scale(0.98) !important;
+    box-shadow: 0 2px 10px var(--cr-accent-glow) !important;
 }
 
-.status-fail {
-    color: var(--danger);
-    font-weight: 700;
+/* ---------- download button ---------- */
+.stDownloadButton > button {
+
+    background-color: var(--secondary-background-color) !important;
+    color: var(--text-color) !important;
+    
+    border-radius: 8px !important;
+    border: 1px solid rgba(151, 166, 195, 0.2) !important;
+    transition: all 0.3s ease !important;
 }
 
-.card {
-    background: #ffffffc8;
-    border: 1px solid #e7dfcb;
-    border-radius: 14px;
-    padding: 0.8rem 1rem;
+/* Efecto al pasar el ratón */
+.stDownloadButton > button:hover {
+    border-color: #007bff !important; 
+    color: #007bff !important;
 }
 
-.status-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.8rem;
-    margin-bottom: 0.8rem;
-}
-
-.status-card {
-    border-radius: 12px;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid #d9d9d9;
-    background: #ffffffd9;
-}
-
-.status-card.ok {
-    border-color: #b8e4c8;
-    background: #ecf9f1;
-}
-
-.status-card.fail {
-    border-color: #efc1c1;
-    background: #fdeeee;
-}
-
-.status-title {
-    font-size: 0.9rem;
-    color: #3f3f3f;
-    margin-bottom: 0.2rem;
-}
-
-.status-value {
-    font-size: 1.2rem;
-    font-weight: 800;
-}
-
-.status-card.ok .status-value {
-    color: var(--ok);
-}
-
-.status-card.fail .status-value {
-    color: var(--danger);
-}
 
 /* Remove legend upload file*/
 [data-testid="stFileUploadDropzone"] small,
@@ -148,31 +225,464 @@ div[data-baseweb="select"] > div {
     transform: scale(0.95);          
 }
 
-/* --- Style of Project Title --- */
-.project-title {
-    font-size: 4.5rem; 
-    font-weight: 900; 
-    letter-spacing: -1.5px; 
-    
-    background: linear-gradient(180deg, #ffffff 5%, #0044ff 60%, #0011aa 100%);
-    
+
+/* ---------- status cards ---------- */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.status-card {
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--cr-border);
+    background: var(--cr-surface);
+    transition: all 0.35s ease;
+    animation: popIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.status-card:first-child { animation-delay: 0.05s; }
+.status-card:last-child  { animation-delay: 0.15s; }
+
+.status-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.status-card.ok {
+    border-color: var(--cr-ok-border);
+    background: var(--cr-ok-bg);
+}
+.status-card.fail {
+    border-color: var(--cr-fail-border);
+    background: var(--cr-fail-bg);
+}
+
+.status-title {
+    font-size: 0.88rem;
+    color: var(--cr-ink-soft);
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+}
+
+.status-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.status-card.ok .status-value  { color: var(--cr-ok); }
+.status-card.fail .status-value { color: var(--cr-fail); }
+
+/* ---------- selectbox ---------- */
+div[data-baseweb="select"] > div {
+    min-height: 50px !important;
+    border-radius: 8px !important;
+    background-color: var(--secondary-background-color) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+div[data-baseweb="select"] > div:hover {
+    border-color: var(--cr-accent) !important;
+}
+
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div[class*="valueContainer"] *,
+div[data-baseweb="select"] input {
+    color: var(--text-color) !important;
+}
+
+ul[role="listbox"] li,
+div[data-baseweb="menu"] * {
+    color: var(--text-color) !important;
+    background-color: var(--background-color) !important;
+}
+
+/* ---------- file uploader  ---------- */
+
+
+[data-testid="stFileUploader"], 
+[data-testid="stFileUploader"] > section, 
+[data-testid="stFileUploadDropzone"] {
+    background-color: transparent !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+
+[data-testid="stFileUploadDropzone"] {
+    min-height: 48px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+
+[data-testid="stFileUploadDropzone"] div,
+[data-testid="stFileUploadDropzone"] label,
+[data-testid="stFileUploadDropzone"] small {
+    display: none !important;
+}
+
+
+[data-testid="stFileUploadDropzone"] button {
+    display: flex !important;
+    background-color: #1e212c !important; 
+    border: 1px solid #2e3340 !important;
+    border-radius: 8px !important;
+    height: 42px !important; 
+    width: auto !important;
+    padding: 0 25px !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+
+[data-testid="stFileUploader"] {
+    margin-top: 5px !important; 
+    padding-left: 20px !important;
+}
+
+
+[data-testid="stFileUploadDropzone"] button:hover {
+    border-color: #4d8dff !important;
+    background-color: #262a34 !important;
+    transform: translateY(-1px);
+}
+/* ---------- text area ---------- */
+textarea {
+    border-radius: 10px !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+textarea:focus {
+    border-color: var(--cr-accent) !important;
+    box-shadow: 0 0 0 3px var(--cr-accent-glow) !important;
+}
+
+/* ---------- tabs ---------- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px 8px 0 0;
+    padding: 8px 20px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+.stTabs [data-baseweb="tab"]:hover {
+    background: var(--cr-badge-blue);
+}
+.stTabs [aria-selected="true"] {
+    border-bottom: 3px solid var(--cr-accent) !important;
+}
+
+/* ---------- dataframe ---------- */
+[data-testid="stDataFrame"] {
+    animation: fadeIn 0.4s ease 0.1s both;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* ---------- alert boxes ---------- */
+[data-testid="stAlert"] {
+    border-radius: 10px !important;
+    animation: slideUp 0.4s ease both;
+}
+
+/* ---------- legend badges ---------- */
+.legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 14px 0;
+}
+.legend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cr-ink);
+    transition: transform 0.2s ease;
+}
+.legend-badge:hover { transform: scale(1.06); }
+
+.legend-badge.green  { background: var(--cr-badge-green); }
+.legend-badge.blue   { background: var(--cr-badge-blue); }
+.legend-badge.yellow { background: var(--cr-badge-yellow); }
+.legend-badge.gray   { background: var(--cr-badge-gray); }
+
+.legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.legend-dot.green  { background: #2E7D32; }
+.legend-dot.blue   { background: #1E5AA8; }
+.legend-dot.yellow { background: #B08900; }
+.legend-dot.gray   { background: #605E5C; }
+
+/* ---------- graphviz chart: theme-aware ---------- */
+[data-testid="stGraphVizChart"] {
+    background: var(--cr-surface-solid) !important;
+    border-radius: 12px !important;
+    padding: 8px !important;
+    border: 1px solid var(--cr-border) !important;
+    overflow: visible !important;
+}
+
+[data-testid="stGraphVizChart"] svg {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+}
+
+/* Forzar transparencia en TODOS los contenedores internos */
+[data-testid="stGraphVizChart"] div,
+[data-testid="stGraphVizChart"] svg {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Ocultar el polígono base mediante CSS como respaldo al JS */
+[data-testid="stGraphVizChart"] svg g > polygon:first-child {
+    opacity: 0 !important;
+}
+
+/* ---------- divider ---------- */
+hr {
+    border-color: var(--cr-border) !important;
+    opacity: 0.5;
+}
+
+/* ---------- segmented control ---------- */
+[data-testid="stSegmentedControl"] button {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.25s ease !important;
+}
+
+/* ---------- expander ---------- */
+details {
+    border-radius: 12px !important;
+    border-color: var(--cr-border) !important;
+    transition: all 0.3s ease;
+}
+details:hover {
+    border-color: var(--cr-accent) !important;
+}
+
+/* ---------- metric cards ---------- */
+[data-testid="stMetric"] {
+    background: var(--cr-surface);
+    border: 1px solid var(--cr-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* ============================================================
+   INTRO OVERLAY — Cinematic presentation
+   ============================================================ */
+
+/* --- Intro keyframes --- */
+@keyframes introBlurIn {
+    from { opacity: 0; filter: blur(12px); transform: translateY(30px); }
+    to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+
+@keyframes introSlideScale {
+    from { opacity: 0; transform: scale(0.6) translateY(40px); }
+    50%  { opacity: 1; transform: scale(1.08) translateY(-5px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes introTypewriter {
+    from { opacity: 0; letter-spacing: 18px; filter: blur(4px); }
+    to   { opacity: 1; letter-spacing: 4px;  filter: blur(0); }
+}
+
+@keyframes introRotateIn {
+    from { opacity: 0; transform: perspective(600px) rotateX(60deg) translateY(20px); }
+    to   { opacity: 1; transform: perspective(600px) rotateX(0deg) translateY(0); }
+}
+
+@keyframes introTitleReveal {
+    0%   { opacity: 0; transform: scale(0.5); filter: blur(20px); }
+    50%  { opacity: 1; transform: scale(1.1); filter: blur(0); }
+    70%  { transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes introGlowPulse {
+    0%, 100% { text-shadow: 0 0 20px rgba(77,141,255,0.0); }
+    50%      { text-shadow: 0 0 40px rgba(77,141,255,0.6), 0 0 80px rgba(77,141,255,0.3); }
+}
+
+@keyframes introLineGrow {
+    from { width: 0; opacity: 0; }
+    to   { width: 80px; opacity: 1; }
+}
+
+@keyframes introFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; pointer-events: none; }
+}
+
+@keyframes introSlideUpOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-80px); }
+}
+
+@keyframes introParticle {
+    0%   { opacity: 0; transform: translateY(0) scale(0); }
+    20%  { opacity: 1; transform: translateY(-10px) scale(1); }
+    100% { opacity: 0; transform: translateY(-120px) scale(0.3); }
+}
+
+/* --- Overlay container --- */
+.intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #0f1628 0%, #060a14 70%, #000000 100%);
+    animation: introFadeOut 0.8s cubic-bezier(0.4,0,0.2,1) 6.6s forwards;
+    overflow: hidden;
+}
+
+.intro-overlay.done {
+    pointer-events: none;
+}
+
+/* --- Animated particles background --- */
+.intro-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.intro-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(77,141,255,0.5);
+    animation: introParticle 3s ease-in-out infinite;
+}
+
+/* --- Line 1: "Equipo 1" — serif italic, blur-in --- */
+.intro-line-1 {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #ffffff;
+    opacity: 0;
+    margin: 8px 0;
+    animation: introBlurIn 1s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
+}
+
+/* --- Line 2: "Compiladores" — mono, typewriter spread --- */
+.intro-line-2 {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #4d8dff;
+    text-transform: uppercase;
+    opacity: 0;
+    margin: 8px 0;
+    animation: introTypewriter 1s cubic-bezier(0.22,1,0.36,1) 1.5s forwards;
+}
+
+/* --- Line 3: "Facultad de Ingenieria" — light sans, 3D rotate-in --- */
+.intro-line-3 {
+    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0;
+    margin: 8px 0;
+    animation: introRotateIn 0.9s cubic-bezier(0.22,1,0.36,1) 2.6s forwards;
+}
+
+/* --- Separator line --- */
+.intro-separator {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4d8dff, #818cf8, transparent);
+    margin: 22px 0;
+    opacity: 0;
+    width: 0;
+    animation: introLineGrow 0.7s cubic-bezier(0.22,1,0.36,1) 3.4s forwards;
+}
+
+/* --- Main title: "C-Reload" — bold sans, explosive reveal --- */
+.intro-title {
+    font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+    font-size: 5.5rem;
+    font-weight: 900;
+    letter-spacing: -3px;
+    background: linear-gradient(135deg, #a5b4fc 0%, #4d8dff 40%, #818cf8 70%, #c084fc 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-fill-color: transparent;
-    
-    line-height: 1.2;
-    padding-top: 15px; 
-    padding-bottom: 5px;
-    margin-bottom: -15px; 
+    opacity: 0;
+    animation: introTitleReveal 1.2s cubic-bezier(0.22,1,0.36,1) 4.0s forwards,
+               introGlowPulse 2s ease-in-out 5.0s 1,
+               introSlideUpOut 0.7s ease 5.8s forwards;
 }
 
-div.stMarkdown h1 {
-    margin-top: 0px !important;
+/* --- Subtitle --- */
+.intro-subtitle {
+    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: introSlideScale 0.7s cubic-bezier(0.22,1,0.36,1) 4.6s forwards,
+               introSlideUpOut 0.6s ease 5.9s forwards;
 }
 
 @media (max-width: 760px) {
-    .project-title {
-        font-size: 3rem; 
-    }
+    .intro-title { font-size: 3rem; letter-spacing: -1px; }
+    .intro-line-1 { font-size: 1.4rem; }
+    .intro-line-2 { font-size: 1.2rem; }
+    .intro-line-3 { font-size: 0.85rem; }
 }
+
+/* 1. Quita el fondo al contenedor del gráfico */
+[data-testid="stGraphVizChart"] {
+    background: transparent !important;
+}
+
+/* 2. Oculta el polígono de fondo que genera GraphViz */
+[data-testid="stGraphVizChart"] svg g > polygon:first-child {
+    opacity: 0 !important;
+}
+
+
+
+
+
+

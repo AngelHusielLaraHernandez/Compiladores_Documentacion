@@ -51,6 +51,123 @@ def _load_css() -> None:
 		with open(css_path, "r", encoding="utf-8") as css_file:
 			st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
+
+def _inject_theme_detector() -> None:
+	"""Inject JS that detects Streamlit's actual theme and sets data-cr-theme on <html>."""
+	st.markdown(
+		'''
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+		<script>
+		(function() {
+			function detectTheme() {
+				// Evaluamos el color del texto nativo de Streamlit
+				var textCol = window.getComputedStyle(document.body).color;
+				var m = textCol.match(/\\d+/g);
+				if (!m) return;
+				var r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
+				var lum = (0.299*r + 0.587*g + 0.114*b);
+				// Si el texto es claro (luminosidad alta), el fondo es oscuro -> modo oscuro
+				var theme = lum > 128 ? 'dark' : 'light';
+				document.documentElement.setAttribute('data-cr-theme', theme);
+			}
+
+			function fitGraphvizFullscreen() {
+				var frames = document.querySelectorAll('[data-testid="stFullScreenFrame"]');
+				frames.forEach(function(frame) {
+					var chart = frame.querySelector('[data-testid="stGraphVizChart"]');
+					if (!chart) return;
+
+					frame.style.width = '100vw';
+					frame.style.maxWidth = '100vw';
+					frame.style.height = '100vh';
+					frame.style.maxHeight = '100vh';
+					frame.style.inset = '0';
+
+					chart.style.width = '100vw';
+					chart.style.maxWidth = '100vw';
+					chart.style.height = '100vh';
+					chart.style.maxHeight = '100vh';
+					chart.style.overflow = 'auto';
+
+					var svg = chart.querySelector('svg');
+					if (!svg) return;
+					svg.style.width = 'max-content';
+					svg.style.minWidth = '100vw';
+					svg.style.maxWidth = 'none';
+					svg.style.height = 'auto';
+					svg.style.maxHeight = 'none';
+					svg.style.margin = '0 auto';
+				});
+			}
+
+			detectTheme();
+			setInterval(detectTheme, 800);
+			setInterval(fitGraphvizFullscreen, 500);
+			var obs = new MutationObserver(detectTheme);
+			obs.observe(document.documentElement, {attributes: true, subtree: true, attributeFilter: ['style','class']});
+
+			var fsObs = new MutationObserver(fitGraphvizFullscreen);
+			fsObs.observe(document.body, {childList: true, subtree: true});
+			window.addEventListener('resize', fitGraphvizFullscreen);
+		})();
+		</script>
+		''',
+		unsafe_allow_html=True,
+	)
+
+
+def _intro_overlay() -> None:
+	"""Show a one-time cinematic intro overlay on first page load."""
+	if st.session_state.get("intro_shown"):
+		return
+	st.session_state["intro_shown"] = True
+
+	# Generate particles with varied positions and delays
+	particles_html = ""
+	import random
+	random.seed(42)  # deterministic for consistent experience
+	for i in range(20):
+		left = random.randint(5, 95)
+		top = random.randint(20, 90)
+		delay = round(random.uniform(0, 2.5), 2)
+		size = random.randint(2, 6)
+		opacity = round(random.uniform(0.2, 0.6), 2)
+		particles_html += (
+			f'<div class="intro-particle" style="'
+			f'left:{left}%;top:{top}%;'
+			f'width:{size}px;height:{size}px;'
+			f'opacity:{opacity};'
+			f'animation-delay:{delay}s;'
+			f'"></div>'
+		)
+
+	st.markdown(
+		f'''
+		<div class="intro-overlay" id="introOverlay">
+			<div class="intro-particles">{particles_html}</div>
+			<span class="intro-line-1">Team 1</span>
+			<span class="intro-line-2">Compilers</span>
+			<span class="intro-line-3">Faculty of Engineering</span>
+			<div class="intro-separator"></div>
+			<span class="intro-title">C-Reload</span>
+			<span class="intro-subtitle">Syntax &amp; Semantic Analyzer</span>
+		</div>
+		<script>
+			setTimeout(function() {{
+				var el = document.getElementById('introOverlay');
+				if (el) {{ el.classList.add('done'); }}
+			}}, 7200);
+			setTimeout(function() {{
+				var el = document.getElementById('introOverlay');
+				if (el) {{ el.remove(); }}
+			}}, 7800);
+		</script>
+		''',
+		unsafe_allow_html=True,
+	)
+
 # Component for displaying the syntax and semantic status in a visually appealing way
 def _status_block(syntax_ok: bool, semantic_ok: bool) -> None:
 	syntax_class = "ok" if syntax_ok else "fail"
@@ -89,7 +206,7 @@ def _tokens_as_table(tokens):
 # Generates a DOT graph from the AST dictionary.
 def _ast_to_dot(ast_dict, rankdir="TB"):
 	if not ast_dict:
-		return "digraph AST { label=\"AST\"; }"
+		return "digraph AST { label=\"AST\"; bgcolor=\"transparent\"; }"
 
 	nodes = []
 	edges = []
@@ -100,12 +217,12 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 
 	def node_style(kind):
 		if kind in {"if", "if_else", "while", "for", "block"}:
-			return "#FFF4CE", "#B08900"
+			return "#FFF4CE", "#B08900", "#4A4000"
 		if kind in {"declaration", "declaration_list", "assignment", "return"}:
-			return "#DFF6DD", "#2E7D32"
+			return "#DFF6DD", "#2E7D32", "#1A4D1E"
 		if kind in {"binary_op", "unary_op", "identifier", "constant", "literal"}:
-			return "#DDEBFF", "#1E5AA8"
-		return "#F3F2F1", "#605E5C"
+			return "#DDEBFF", "#1E5AA8", "#0E2D54"
+		return "#F3F2F1", "#605E5C", "#3B3A39"
 
 	def walk(node, parent_id=None):
 		nonlocal count
@@ -114,7 +231,7 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 		kind = node.get("kind", "node")
 		value = node.get("value")
 		lineno = node.get("lineno", 0)
-		fill, border = node_style(kind)
+		fill, border, font_color = node_style(kind)
 
 		value_text = "-" if value is None else esc(value)
 		if len(value_text) > 42:
@@ -124,9 +241,9 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 		label = (
 			"<"
 			"<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLPADDING=\"2\">"
-			f"<TR><TD><B>{esc(kind)}</B></TD></TR>"
-			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\">value: {value_text}</FONT></TD></TR>"
-			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\">line: {line_text}</FONT></TD></TR>"
+			f"<TR><TD><FONT COLOR=\"{font_color}\"><B>{esc(kind)}</B></FONT></TD></TR>"
+			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">value: {value_text}</FONT></TD></TR>"
+			f"<TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"10\" COLOR=\"{font_color}\">line: {line_text}</FONT></TD></TR>"
 			"</TABLE>>"
 		)
 
@@ -143,6 +260,7 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 	body = "\n".join(nodes + edges)
 	return (
 		"digraph AST {\n"
+		"bgcolor=\"transparent\";\n"
 		f"rankdir={rankdir};\n"
 		"nodesep=0.25;\n"
 		"ranksep=0.35;\n"
@@ -155,7 +273,9 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 
 def main() -> None:
     st.set_page_config(page_title="Syntax & Semantic Analyzer", page_icon="C", layout="wide")
+    _inject_theme_detector()
     _load_css()
+    _intro_overlay()
 
     # Initialization of session state variables
     if "source_code" not in st.session_state:
@@ -174,7 +294,7 @@ def main() -> None:
 
 	# Titles
     st.markdown('<div class="project-title">C-Reload</div>', unsafe_allow_html=True)
-    st.title("Syntax & Semantic Analyzer")
+    st.markdown("#### Syntax & Semantic Analyzer")
 
     # Layout: Two columns (Input | Output)
     input_col, output_col = st.columns([1.1, 1.5], gap="large")
@@ -197,7 +317,7 @@ def main() -> None:
         col_btn_analizar, col_btn_upload = st.columns(2, gap="small")
         
         with col_btn_upload:
-            uploaded = st.file_uploader("Upload", type=["c", "txt"], label_visibility="collapsed")
+            uploaded = st.file_uploader("Upload C code", type=["c", "txt"], label_visibility="collapsed")
             
 		# Logic to handle file upload and update the text area with the uploaded content
         if uploaded is not None:
@@ -211,15 +331,16 @@ def main() -> None:
             st.text_area("C source code", height=300, key="source_code")
 
         with col_btn_analizar:
-            if st.button("Analyze", type="primary", use_container_width=True):
-                st.session_state["analysis_result"] = parse_source(st.session_state["source_code"])
+            if st.button("Analyze", type="primary", width="stretch"):
+                with st.spinner("Analyzing..."):
+                    st.session_state["analysis_result"] = parse_source(st.session_state["source_code"])
 
 
     with output_col:
         st.subheader("Output")
         result = st.session_state.get("analysis_result")
         if result is None:
-            st.info("Select or edit a sample on the left, then click Analyze.")
+            st.info("Select or edit a sample on the left, then click **Analyze**.")
         else:
             _status_block(result["syntax_ok"], result["semantic_ok"])
 			# Tabs for Tokens, Semantic details, and AST visualization
@@ -265,19 +386,27 @@ def main() -> None:
 			# Visualization of the AST in the third tab
             with tab3:
                 st.subheader("AST graph")
-                st.caption("Legend:")
-                st.caption("Green =  declarations/assignments")
-                st.caption("Blue = expressions/operands")
-                st.caption("Yellow = control flow (if, while, for)")
+                st.markdown(
+                    '''
+                    <div class="legend-row">
+                        <span class="legend-badge green"><span class="legend-dot green"></span>Declarations / Assignments</span>
+                        <span class="legend-badge blue"><span class="legend-dot blue"></span>Expressions / Operands</span>
+                        <span class="legend-badge yellow"><span class="legend-dot yellow"></span>Control flow (if, while, for)</span>
+                        <span class="legend-badge gray"><span class="legend-dot gray"></span>Other nodes</span>
+                    </div>
+                    ''',
+                    unsafe_allow_html=True,
+                )
                 orientation = st.segmented_control(
                     "Orientation",
                     options=["Top-Down", "Bottom-Up"],
                     default="Top-Down",
                 )
                 rankdir = "TB" if orientation == "Top-Down" else "BT"
+                
                 if result["syntax_ok"] and result["ast_dict"]:
                     dot_graph = _ast_to_dot(result["ast_dict"], rankdir=rankdir)
-                    st.graphviz_chart(dot_graph)
+                    st.graphviz_chart(dot_graph, width="stretch")
                 else:
                     st.info("Cannot build the graph when syntax errors exist.")
 
@@ -302,7 +431,7 @@ def main() -> None:
                 ),
                 file_name="CReload_report.json",
                 mime="application/json",
-                use_container_width=True,
+				width="stretch",
             )
 
 if __name__ == "__main__":
