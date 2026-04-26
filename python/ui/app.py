@@ -168,6 +168,31 @@ def _intro_overlay() -> None:
 		unsafe_allow_html=True,
 	)
 
+def _background_bubbles() -> None:
+	"""Inject persistent floating bubbles as animated background."""
+	import random
+	random.seed(99)
+	bubbles = ""
+	for _ in range(15):
+		left = random.randint(2, 98)
+		size = random.randint(18, 70)
+		dur = round(random.uniform(12, 28), 1)
+		sway = round(random.uniform(4, 8), 1)
+		delay = round(random.uniform(0, 14), 1)
+		bubbles += (
+			f'<div class="bg-bubble" style="'
+			f'left:{left}%;'
+			f'width:{size}px;height:{size}px;'
+			f'--dur:{dur}s;--sway:{sway}s;'
+			f'animation-delay:{delay}s,{round(delay/2,1)}s;'
+			f'"></div>'
+		)
+	st.markdown(
+		f'<div class="bg-bubbles-container">{bubbles}</div>',
+		unsafe_allow_html=True,
+	)
+
+
 # Component for displaying the syntax and semantic status in a visually appealing way
 def _status_block(syntax_ok: bool, semantic_ok: bool) -> None:
 	syntax_class = "ok" if syntax_ok else "fail"
@@ -276,6 +301,7 @@ def main() -> None:
     _inject_theme_detector()
     _load_css()
     _intro_overlay()
+    _background_bubbles()
 
     # Initialization of session state variables
     if "source_code" not in st.session_state:

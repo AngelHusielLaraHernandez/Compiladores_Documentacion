@@ -689,8 +689,51 @@ details:hover {
     opacity: 0 !important;
 }
 
+/* ============================================================
+   FLOATING BUBBLES — persistent animated background
+   ============================================================ */
+@keyframes bgFloat {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-110vh) scale(0.4); opacity: 0; }
+}
 
+@keyframes bgSway {
+    0%, 100% { margin-left: 0; }
+    25%      { margin-left: 30px; }
+    75%      { margin-left: -30px; }
+}
 
+.bg-bubbles-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
 
+.bg-bubble {
+    position: absolute;
+    bottom: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%,
+        rgba(77,141,255,0.18),
+        rgba(129,140,248,0.10) 60%,
+        transparent 100%);
+    border: 1px solid rgba(77,141,255,0.08);
+    animation: bgFloat var(--dur) ease-in infinite,
+               bgSway var(--sway) ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+/* Light mode: softer, less visible */
+html[data-cr-theme="light"] .bg-bubble {
+    background: radial-gradient(circle at 30% 30%,
+        rgba(0,68,255,0.08),
+        rgba(0,85,255,0.04) 60%,
+        transparent 100%);
+    border: 1px solid rgba(0,68,255,0.05);
+}
 
 
