@@ -1,0 +1,238 @@
+{
+    "kind": "program",
+    "value": null,
+    "lineno": 0,
+    "children": [
+        {
+            "kind": "declaration",
+            "value": {
+                "name": "x",
+                "type": "int"
+            },
+            "lineno": 1,
+            "children": [
+                {
+                    "kind": "constant",
+                    "value": "1",
+                    "lineno": 1,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "declaration",
+            "value": {
+                "name": "y",
+                "type": "float"
+            },
+            "lineno": 2,
+            "children": [
+                {
+                    "kind": "constant",
+                    "value": "2",
+                    "lineno": 2,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "declaration",
+            "value": {
+                "name": "c",
+                "type": "char"
+            },
+            "lineno": 3,
+            "children": [
+                {
+                    "kind": "literal",
+                    "value": "'a'",
+                    "lineno": 3,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "assignment",
+            "value": {
+                "name": "x",
+                "op": "="
+            },
+            "lineno": 4,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "+",
+                    "lineno": 4,
+                    "children": [
+                        {
+                            "kind": "identifier",
+                            "value": "x",
+                            "lineno": 4,
+                            "children": []
+                        },
+                        {
+                            "kind": "constant",
+                            "value": "1",
+                            "lineno": 4,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "assignment",
+            "value": {
+                "name": "y",
+                "op": "="
+            },
+            "lineno": 5,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "+",
+                    "lineno": 5,
+                    "children": [
+                        {
+                            "kind": "identifier",
+                            "value": "y",
+                            "lineno": 5,
+                            "children": []
+                        },
+                        {
+                            "kind": "identifier",
+                            "value": "x",
+                            "lineno": 5,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "if",
+            "value": null,
+            "lineno": 6,
+            "children": [
+                {
+                    "kind": "binary_op",
+                    "value": "&&",
+                    "lineno": 6,
+                    "children": [
+                        {
+                            "kind": "binary_op",
+                            "value": "<",
+                            "lineno": 0,
+                            "children": [
+                                {
+                                    "kind": "identifier",
+                                    "value": "x",
+                                    "lineno": 6,
+                                    "children": []
+                                },
+                                {
+                                    "kind": "identifier",
+                                    "value": "y",
+                                    "lineno": 6,
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "binary_op",
+                            "value": ">",
+                            "lineno": 0,
+                            "children": [
+                                {
+                                    "kind": "identifier",
+                                    "value": "y",
+                                    "lineno": 6,
+                                    "children": []
+                                },
+                                {
+                                    "kind": "constant",
+                                    "value": "0",
+                                    "lineno": 6,
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "block",
+                    "value": null,
+                    "lineno": 6,
+                    "children": [
+                        {
+                            "kind": "assignment",
+                            "value": {
+                                "name": "x",
+                                "op": "+="
+                            },
+                            "lineno": 7,
+                            "children": [
+                                {
+                                    "kind": "constant",
+                                    "value": "1",
+                                    "lineno": 7,
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "print_stmt",
+            "value": null,
+            "lineno": 9,
+            "children": [
+                {
+                    "kind": "literal",
+                    "value": "\"%d %f %c\"",
+                    "lineno": 9,
+                    "children": []
+                },
+                {
+                    "kind": "identifier",
+                    "value": "x",
+                    "lineno": 9,
+                    "children": []
+                },
+                {
+                    "kind": "identifier",
+                    "value": "y",
+                    "lineno": 9,
+                    "children": []
+                },
+                {
+                    "kind": "identifier",
+                    "value": "c",
+                    "lineno": 9,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "scan_stmt",
+            "value": null,
+            "lineno": 10,
+            "children": [
+                {
+                    "kind": "literal",
+                    "value": "\"%d\"",
+                    "lineno": 10,
+                    "children": []
+                },
+                {
+                    "kind": "identifier",
+                    "value": "x",
+                    "lineno": 10,
+                    "children": []
+                }
+            ]
+        }
+    ]
+}
