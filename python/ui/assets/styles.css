@@ -442,9 +442,9 @@ textarea:focus {
     border-radius: 12px !important;
     padding: 8px !important;
     border: 1px solid var(--cr-border) !important;
-    overflow: visible !important;
+    /*overflow: visible !important;*/
 }
-
+/*
 [data-testid="stGraphVizChart"] svg {
     display: block !important;
     width: 100% !important;
@@ -452,7 +452,7 @@ textarea:focus {
     height: auto !important;
     max-height: none !important;
     margin: 0 auto !important;
-}
+}*/
 
 /* Forzar transparencia en TODOS los contenedores internos */
 [data-testid="stGraphVizChart"] div,
@@ -737,3 +737,115 @@ html[data-cr-theme="light"] .bg-bubble {
 }
 
 
+/* ============================================================
+   VIDEO BACKGROUND — dark/light looping videos con crossfade
+   ============================================================ */
+
+/* El video vive en z-index 0.  Los contenedores de Streamlit quedan en z-index 1
+   con fondo transparente → el video se ve a través de ellos.               */
+#cr-video-bg {
+    position:       fixed;
+    inset:          0;
+    z-index:        0;        /* positivo: por encima del fondo de html/body  */
+    overflow:       hidden;
+    pointer-events: none;
+}
+
+/* Ambos videos cubren toda la pantalla; opacity controla cuál se ve */
+.cr-bg-video {
+    position:   absolute;
+    inset:      0;
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    opacity:    0;
+    transition: opacity 1.4s ease;   /* crossfade suave entre modos */
+    will-change: opacity;
+}
+
+/* Modo oscuro → darkmode.mp4 */
+html[data-cr-theme="dark"]  #vid-dark  { opacity: 1; }
+/* Modo claro  → lightmode.mp4 */
+html[data-cr-theme="light"] #vid-light { opacity: 1; }
+/* Default antes de que JS detecte el tema */
+html:not([data-cr-theme])   #vid-light { opacity: 1; }
+
+/* Streamlit por encima del video, con fondo completamente transparente.
+   El JS también lo fuerza con setProperty para mayor robustez.             */
+html, body,
+#root,
+.stApp,
+.withScreencast,
+[data-testid="stAppViewContainer"],
+[data-testid="stHeader"],
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"],
+section.main {
+    background:       transparent !important;
+    background-color: transparent !important;
+}
+
+.stApp,
+[data-testid="stAppViewContainer"] {
+    position: relative !important;
+    z-index:  1        !important;   /* encima del video (z-index 0) */
+}
+
+/* ============================================================
+   PANTALLA COMPLETA - Transparencia
+   ============================================================ */
+
+/* 1. Forzar que el marco de pantalla completa de Streamlit sea transparente */
+[data-testid="stFullScreenFrame"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* 2. Quitar el fondo sólido del grafo SOLAMENTE cuando esté en pantalla completa */
+[data-testid="stFullScreenFrame"] [data-testid="stGraphVizChart"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important; /* Opcional: quita el borde para que se vea más limpio */
+}
+
+/* 3. Streamlit a veces usa un backdrop (fondo oscuro) detrás del modal */
+div[role="dialog"] {
+    background: transparent !important;
+}
+
+/* ============================================================
+   OCULTAR INTERFAZ DURANTE PANTALLA COMPLETA (PRECISIÓN QUIRÚRGICA)
+   ============================================================ */
+
+/* Ocultamos específicamente los widgets visuales de tu app, 
+   dejando intactos los contenedores estructurales para no romper el grafo */
+body[data-cr-fullscreen="true"] [data-testid="stSidebar"],
+body[data-cr-fullscreen="true"] [data-testid="stHeader"],
+body[data-cr-fullscreen="true"] .project-title,
+body[data-cr-fullscreen="true"] h4,
+body[data-cr-fullscreen="true"] h3,
+body[data-cr-fullscreen="true"] [data-testid="stSelectbox"],
+body[data-cr-fullscreen="true"] [data-testid="stTextArea"],
+body[data-cr-fullscreen="true"] [data-testid="stFileUploader"],
+body[data-cr-fullscreen="true"] [data-testid="stButton"],
+body[data-cr-fullscreen="true"] .status-grid,
+body[data-cr-fullscreen="true"] [data-baseweb="tab-list"],
+body[data-cr-fullscreen="true"] .legend-row,
+body[data-cr-fullscreen="true"] [data-testid="stSegmentedControl"],
+body[data-cr-fullscreen="true"] [role="radiogroup"],            /* <- Agregado para el control segmentado */
+body[data-cr-fullscreen="true"] [data-testid="stWidgetLabel"],  /* <- Agregado para la palabra "Orientation" */
+body[data-cr-fullscreen="true"] hr,
+body[data-cr-fullscreen="true"] [data-testid="stDownloadButton"],
+body[data-cr-fullscreen="true"] [data-testid="stAlert"] {
+    opacity: 0 !important;
+    visibility: hidden !important; /* <- ¡Regresamos esto, aquí sí es seguro y fulminante! */
+    pointer-events: none !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* Mantenemos el fondo del marco de pantalla completa transparente 
+   para que el video de fondo se vea perfectamente a través de él */
+body[data-cr-fullscreen="true"] [data-testid="stFullScreenFrame"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}

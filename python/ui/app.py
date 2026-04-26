@@ -1,10 +1,13 @@
 # C-Reload: Syntax & Semantic Analyzer (UI)
 
+import http.server
 import json
 import os
 import sys
+import threading
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Adding the project root to sys.path to allow imports from the compiler and utils packages
 
@@ -52,70 +55,224 @@ def _load_css() -> None:
 			st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
 
+_VIDEO_PORT = 8502
+
+
+def _start_video_server() -> int:
+    """Lanza un servidor HTTP daemon que sirve los MP4 de la carpeta video/.
+
+    Usa allow_reuse_address=True para que el puerto pueda reutilizarse
+    tras un hot-reload (estado TIME_WAIT). Prueba puertos 8502..8506
+    y devuelve el puerto que logró abrir.
+    """
+    global _VIDEO_PORT
+    video_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "video")
+
+    class _ReuseHTTPServer(http.server.HTTPServer):
+        allow_reuse_address = True
+
+    class _Handler(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=video_dir, **kwargs)
+
+        def log_message(self, *args, **kwargs):
+            pass  # Silenciar logs del servidor
+
+        def end_headers(self):
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "no-cache")
+            super().end_headers()
+
+    for port in range(8502, 8507):
+        try:
+            server = _ReuseHTTPServer(("127.0.0.1", port), _Handler)
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            _VIDEO_PORT = port
+            return port
+        except OSError:
+            continue
+
+    return _VIDEO_PORT
+
+
+# Arrancar antes de cualquier render de Streamlit
+_start_video_server()
+
+
 def _inject_theme_detector() -> None:
-	"""Inject JS that detects Streamlit's actual theme and sets data-cr-theme on <html>."""
-	st.markdown(
-		'''
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
-		<script>
-		(function() {
-			function detectTheme() {
-				// Evaluamos el color del texto nativo de Streamlit
-				var textCol = window.getComputedStyle(document.body).color;
-				var m = textCol.match(/\\d+/g);
-				if (!m) return;
-				var r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
-				var lum = (0.299*r + 0.587*g + 0.114*b);
-				// Si el texto es claro (luminosidad alta), el fondo es oscuro -> modo oscuro
-				var theme = lum > 128 ? 'dark' : 'light';
-				document.documentElement.setAttribute('data-cr-theme', theme);
-			}
+    """Inject fonts via st.markdown (safe — no script tags needed here)."""
+    st.markdown(
+        '''
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+        ''',
+        unsafe_allow_html=True,
+    )
 
-			function fitGraphvizFullscreen() {
-				var frames = document.querySelectorAll('[data-testid="stFullScreenFrame"]');
-				frames.forEach(function(frame) {
-					var chart = frame.querySelector('[data-testid="stGraphVizChart"]');
-					if (!chart) return;
 
-					frame.style.width = '100vw';
-					frame.style.maxWidth = '100vw';
-					frame.style.height = '100vh';
-					frame.style.maxHeight = '100vh';
-					frame.style.inset = '0';
+def _inject_scripts_component() -> None:
+    """Use st.components.v1.html (real iframe) so scripts are GUARANTEED to execute.
 
-					chart.style.width = '100vw';
-					chart.style.maxWidth = '100vw';
-					chart.style.height = '100vh';
-					chart.style.maxHeight = '100vh';
-					chart.style.overflow = 'auto';
+    From inside the iframe we access window.parent.document (same-origin, both
+    on localhost:8501) to:
+      1. Detect Streamlit's theme and set data-cr-theme on the parent <html>.
+      2. Force all Streamlit containers to be transparent so the video shows.
+      3. Create the #cr-video-bg div with two <video> elements served by our
+         local HTTP daemon on _VIDEO_PORT.
+      4. Fit Graphviz full-screen frames.
+    """
+    port = _VIDEO_PORT
+    html_code = f"""<!DOCTYPE html>
+<html>
+<head><style>html,body{{margin:0;padding:0;background:transparent;}}</style></head>
+<body>
+<script>
+(function() {{
+    var pdoc;
+    try {{ pdoc = window.parent.document; }} catch(e) {{ return; }}
 
-					var svg = chart.querySelector('svg');
-					if (!svg) return;
-					svg.style.width = 'max-content';
-					svg.style.minWidth = '100vw';
-					svg.style.maxWidth = 'none';
-					svg.style.height = 'auto';
-					svg.style.maxHeight = 'none';
-					svg.style.margin = '0 auto';
-				});
-			}
+    var BG_DARK  = 'http://127.0.0.1:{port}/darkmode.mp4';
+    var BG_LIGHT = 'http://127.0.0.1:{port}/lightmode.mp4';
 
-			detectTheme();
-			setInterval(detectTheme, 800);
-			setInterval(fitGraphvizFullscreen, 500);
-			var obs = new MutationObserver(detectTheme);
-			obs.observe(document.documentElement, {attributes: true, subtree: true, attributeFilter: ['style','class']});
+    // ── 1. Theme detection ────────────────────────────────────────────────
+    function detectTheme() {{
+        var body = pdoc.body;
+        if (!body) return;
+        var col = window.parent.getComputedStyle(body).color;
+        var m = col.match(/\\d+/g);
+        if (!m) return;
+        var lum = 0.299*+m[0] + 0.587*+m[1] + 0.114*+m[2];
+        var theme = lum > 128 ? 'dark' : 'light';
+        pdoc.documentElement.setAttribute('data-cr-theme', theme);
+    }}
 
-			var fsObs = new MutationObserver(fitGraphvizFullscreen);
-			fsObs.observe(document.body, {childList: true, subtree: true});
-			window.addEventListener('resize', fitGraphvizFullscreen);
-		})();
-		</script>
-		''',
-		unsafe_allow_html=True,
-	)
+    // ── 2. Force transparency ─────────────────────────────────────────────
+    function forceTransparent() {{
+		var sels = [
+            'html','body','#root','.stApp','.withScreencast',
+            '[data-testid="stAppViewContainer"]',
+            '[data-testid="stHeader"]',
+            '[data-testid="stMain"]',
+            '[data-testid="stMainBlockContainer"]',
+            'section.main',
+            '[data-testid="stFullScreenFrame"]' // <-- ¡AGREGA ESTA LÍNEA!
+        ];
+        sels.forEach(function(sel) {{
+            pdoc.querySelectorAll(sel).forEach(function(el) {{
+                el.style.setProperty('background',       'transparent', 'important');
+                el.style.setProperty('background-color', 'transparent', 'important');
+            }});
+        }});
+    }}
+
+    // ── 3. Video background ───────────────────────────────────────────────
+    function ensureVideoBg() {{
+        if (pdoc.getElementById('cr-video-bg')) return;
+
+        // Inject CSS into parent if not already there
+        if (!pdoc.getElementById('cr-video-style')) {{
+            var style = pdoc.createElement('style');
+            style.id = 'cr-video-style';
+            style.textContent = [
+                '#cr-video-bg{{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}}',
+                '.cr-bg-video{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;',
+                '  opacity:0;transition:opacity 1.4s ease;will-change:opacity;}}',
+                'html[data-cr-theme="dark"]  #vid-dark  {{opacity:1;}}',
+                'html[data-cr-theme="light"] #vid-light {{opacity:1;}}',
+                'html:not([data-cr-theme])   #vid-light {{opacity:1;}}'
+            ].join('');
+            pdoc.head.appendChild(style);
+        }}
+
+        var bg = pdoc.createElement('div');
+        bg.id = 'cr-video-bg';
+
+        function makeVid(id, src) {{
+            var v = pdoc.createElement('video');
+            v.id = id;
+            v.className = 'cr-bg-video';
+            v.autoplay = true;
+            v.loop = true;
+            v.muted = true;
+            v.setAttribute('playsinline', '');
+            v.setAttribute('preload', 'auto');
+            var s = pdoc.createElement('source');
+            s.src  = src;
+            s.type = 'video/mp4';
+            v.appendChild(s);
+            v.load();
+            v.play().catch(function(){{}});
+            return v;
+        }}
+
+        bg.appendChild(makeVid('vid-dark',  BG_DARK));
+        bg.appendChild(makeVid('vid-light', BG_LIGHT));
+        pdoc.body.insertBefore(bg, pdoc.body.firstChild);
+    }}
+    
+	// ── 4. Fullscreen Detector ────────────────────────────────────────────
+    function checkFullscreen() {{
+        var isFs = false;
+        
+        // Método 1: Buscar la clase oficial o el fondo oscuro (overlay) que pone Streamlit
+        if (pdoc.querySelector('.stFullScreen') || pdoc.querySelector('[data-testid="stFullScreenOverlay"]')) {{
+            isFs = true;
+        }}
+
+        // Método 2 (Infalible): Medir si el grafo se estiró a toda la pantalla
+        var vw = window.parent.innerWidth;
+        var vh = window.parent.innerHeight;
+        pdoc.querySelectorAll('[data-testid="stFullScreenFrame"]').forEach(function(frame) {{
+            var rect = frame.getBoundingClientRect();
+            // Si el marco del grafo ocupa más del 80% del ancho y alto, está en fullscreen
+            if (rect.width > vw * 0.8 && rect.height > vh * 0.8) {{
+                isFs = true;
+            }}
+        }});
+
+        // Activar o desactivar la bandera en el body
+        if (isFs) {{
+            pdoc.body.setAttribute('data-cr-fullscreen', 'true');
+        }} else {{
+            pdoc.body.removeAttribute('data-cr-fullscreen');
+        }}
+    }}
+
+    // ── 4. Graphviz full-screen ───────────────────────────────────────────
+
+    // ── Bootstrap ─────────────────────────────────────────────────────────
+    function bootstrap() {{
+        detectTheme();
+        forceTransparent();
+        ensureVideoBg();
+        
+    }}
+
+    // Run immediately, then on intervals
+    bootstrap();
+    setInterval(detectTheme,     800);
+    setInterval(forceTransparent, 800);
+    setInterval(ensureVideoBg,   1500);
+    setInterval(checkFullscreen,  300);
+    
+
+    // MutationObserver on parent body for React re-renders
+    try {{
+        var obs = new MutationObserver(function() {{
+            forceTransparent();
+            detectTheme();
+            ensureVideoBg();
+        }});
+        obs.observe(pdoc.body, {{ childList: true, subtree: true }});
+    }} catch(e) {{}}
+
+    
+}})();
+</script>
+</body>
+</html>"""
+    components.html(html_code, height=0, scrolling=False)
 
 
 def _intro_overlay() -> None:
@@ -298,7 +455,8 @@ def _ast_to_dot(ast_dict, rankdir="TB"):
 
 def main() -> None:
     st.set_page_config(page_title="Syntax & Semantic Analyzer", page_icon="C", layout="wide")
-    _inject_theme_detector()
+    _inject_theme_detector()        # fonts only (safe st.markdown)
+    _inject_scripts_component()     # iframe → scripts guaranteed to run
     _load_css()
     _intro_overlay()
     _background_bubbles()
