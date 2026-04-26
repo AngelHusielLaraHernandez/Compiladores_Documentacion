@@ -716,7 +716,117 @@ The variable \texttt{q} does not exist in the symbol table. When evaluating the 
 \end{longtable}
 
 The nine test cases produce exactly the expected result. In the cases with syntactic error, the semantic analysis is not executed since it is not posible to build a valid AST. In all the semantic cases, the syntax is valid and the error is correctly detected by the SDT rules during the traversal of the AST, generating messages that include the type of error, the variable or token involved and the coresponding line number.
+
+
+\newpage
 \section{Results}
+In this section, we summarize the results obtained from the implementation of the compiler for the specified subset of C. The compiler successfully performs lexical analysis, syntactic analysis using a bottom-up LR(1) parser, and semantic analysis with a symbol table and type checking.
+
+As sayed before, we have to ways of executing the compiler: through the terminal and through a graphical user interface. In both cases, the compiler processes the input code and provides detailed reports of each phase of the analysis, including any errors detected.
+
+
+\subsection{Case 1: Correct Semantics and Syntax (covers what is defined in the grammar)}
+
+
+
+For this test, the \textbf{keyboard input} option was selected, and  the following C code fragment was provided:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Pruebas/Terminal/1teclado.png}
+    \caption{Terminal input of C code for testing.}
+    \label{fig:results}
+\end{figure}
+
+
+\subsubsection{Terminal mode }
+
+In terminal mode, the compiler presents an interactive menu that allows the user to 
+select the input source: loading code from a file, entering it directly via keyboard, 
+or quitting the program. 
+\newpage
+
+\subsubsection{Lexical Analysis}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Pruebas/Terminal/1l.png}
+    \caption{Lexical Analysis.}
+    \label{fig:results}
+\end{figure}
+
+
+The first phase produces a flat token stream from the source code. Each token is 
+classified into one of seven categories: \texttt{KEYWORD}, \texttt{IDENTIFIER}, 
+\texttt{OPERATOR}, \texttt{CONSTANT}, \texttt{PUNCTUATION}, \texttt{LITERAL}, and 
+\texttt{SPECIAL}. A total of \textbf{64 tokens} were identified, distributed as 
+follows:
+
+\begin{itemize}
+    \item \textbf{KEYWORD (4):} The reserved words \texttt{int}, \texttt{float}, 
+    \texttt{char}, and \texttt{if}, each appearing once.
+
+    \item \textbf{IDENTIFIER (18):} The variable \texttt{x} is the most frequent 
+    identifier with 8 occurrences, followed by \texttt{y} (6 times) and \texttt{c} 
+    (2 times). The standard library functions \texttt{printf} and \texttt{scanf} are 
+    also recognized as identifiers (1 time each).
+
+    \item \textbf{OPERATOR (11):} The assignment operator \texttt{=} appears 6 times, 
+    the addition operator \texttt{+} 3 times, and the relational operators \texttt{<} 
+    and \texttt{>} once each.
+
+    \item \textbf{PUNCTUATION (20):} The most frequent punctuation token is the 
+    semicolon \texttt{;} with 8 occurrences, followed by the comma \texttt{,} 
+    (4 times), and matching pairs of parentheses (3 each). The curly braces 
+    \texttt{\{} and \texttt{\}} appear once each, delimiting the \texttt{if} block.
+
+    \item \textbf{CONSTANT (5):} The integer literals \texttt{1} (3 times), 
+    \texttt{2}, and \texttt{0} are classified as numeric constants.
+
+    \item \textbf{LITERAL (3):} The character literal \texttt{'a'} and the format 
+    strings \texttt{"\%d \%f \%c"} and \texttt{"\%d"} are recognized as literals.
+
+    \item \textbf{SPECIAL (3):} The ampersand symbol \texttt{\&} appears 3 times: 
+    twice forming the logical AND operator \texttt{\&\&} in the \texttt{if} condition, 
+    and once as the address-of operator in the \texttt{scanf} call.
+\end{itemize}
+
+The analyzer also offers an option to display the source code with each token 
+highlighted by category using a color legend, providing a visual confirmation of 
+the correct tokenization.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Pruebas/Terminal/S.png}
+    \caption{Source Code with the tokens highlighted.}
+    \label{fig:results}
+\end{figure}
+
+\subsubsection{Syntax and Semantic Analysis}
+
+After the lexical phase, the user is prompted to run syntax and semantic analysis. 
+Both phases completed successfully for the provided input, reporting \texttt{VALID} 
+results in both cases. This confirms that the token stream conforms to the LR(1) 
+grammar defined for the supported C subset, and that the semantic rules — including 
+variable declaration before use, type compatibility in assignments and expressions, 
+and correct use of operators — were all satisfied.
+
+\subsubsection{Export}
+
+Finally, the compiler offers the option to export the analysis results. Two output 
+files are generated: a plain-text report (\texttt{report\_keyboard.txt}) containing 
+the full token listing and analysis summary, and a JSON file 
+(\texttt{ast\_keyboard.json}) containing the Abstract Syntax Tree produced during 
+parsing. These exports allow for further inspection and documentation of the 
+analysis outside the terminal environment.
+
+
+
+
+
+
+
 
 
 \section{Conclusions}
