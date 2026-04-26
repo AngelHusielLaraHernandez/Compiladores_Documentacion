@@ -70,18 +70,29 @@ def _start_video_server() -> int:
 
     class _ReuseHTTPServer(http.server.HTTPServer):
         allow_reuse_address = True
+        
+        
+        def handle_error(self, request, client_address):
+            pass
 
     class _Handler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=video_dir, **kwargs)
 
         def log_message(self, *args, **kwargs):
-            pass  # Silenciar logs del servidor
+            pass 
 
         def end_headers(self):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Cache-Control", "no-cache")
             super().end_headers()
+
+        
+        def handle(self):
+            try:
+                super().handle()
+            except (ConnectionResetError, BrokenPipeError):
+                pass
 
     for port in range(8502, 8507):
         try:
